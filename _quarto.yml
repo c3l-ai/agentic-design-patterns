@@ -50,8 +50,6 @@ book:
   repo-url: https://github.com/c3l-ai/agentic-design-patterns
   repo-actions: [edit, issue]
 
-  favicon: figures/favicon.png
-
   sidebar:
     style: docked
     background: light
@@ -81,14 +79,3 @@ format:
     smooth-scroll: true
     link-external-icon: true
     link-external-newwindow: true
-  pdf:
-    documentclass: scrbook
-    papersize: a4
-    toc: true
-    number-sections: true
-    colorlinks: true
-    fig-align: center
-    include-in-header:
-      text: |
-        \usepackage{microtype}
-        \usepackage{lmodern}

@@ -25,11 +25,9 @@ jobs:
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: pre-release
 
-      - name: Render book
-        run: quarto render
+      - name: Render book (HTML only)
+        run: quarto render --to html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
