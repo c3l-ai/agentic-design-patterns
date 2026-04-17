@@ -1,0 +1,97 @@
+# Abstract Factory {#sec-abstract-factory}
+
+::: {.pattern-category}
+Creational · Pattern 1 of 12
+:::
+
+::: {.gof-box}
+Provide an interface for creating families of related or dependent objects without specifying their concrete classes.
+
+::: {.gof-source}
+@gamma1994design, p. 87
+:::
+:::
+
+## The Translation Argument
+
+The Abstract Factory pattern solves a consistency problem. When a system needs to create families of related objects — buttons, scrollbars, and menus that belong to the same UI theme, for instance — the factory guarantees that the objects created together are internally coherent. The client code requests objects through a stable abstract interface and receives a matched family without knowing which concrete factory produced them. Swapping the factory swaps the entire family; the client is unchanged.
+
+In agentic AI systems, the structurally equivalent problem is evaluation suite generation. Every agent requires a coherent family of evaluators — judges that assess whether the agent's outputs meet quality, safety, and task-specific criteria. Crucially, this family must vary together depending on the agent's role. A task-executing agent needs judges oriented toward output correctness, tool use appropriateness, and safety constraint compliance. An orchestrating agent needs judges oriented toward routing accuracy, handoff quality, and cross-agent coherence. A reflection agent needs judges oriented toward critique depth, revision improvement, and convergence. The interface for requesting these evaluators, however, remains identical regardless of agent type: `getOutputJudge()`, `getToolJudge()`, `getSafetyJudge()`.
+
+This is the Abstract Factory mapping. An `AgentEvalFactory` interface defines the contract. Concrete factories — `TaskAgentEvalFactory`, `OrchestratorEvalFactory`, `ReflectionEvalFactory` — implement it, each producing an internally consistent family of judges suited to their agent type. The client agent is entirely decoupled from the concrete factory and the concrete judges it receives.
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Abstract Factory | `AgentEvalFactory` | Defines the interface for creating eval families: `getOutputJudge()`, `getToolJudge()`, `getSafetyJudge()` |
+| Concrete Factory | `TaskAgentEvalFactory`, `OrchestratorEvalFactory`, `ReflectionEvalFactory` | Implements the interface, produces internally consistent judge families |
+| Abstract Product | `Judge` | Common interface all concrete judges implement |
+| Concrete Product | `OutputJudge`, `ToolUseJudge`, `RoutingJudge`, `HumanJudge` etc. | The actual evaluators produced by each factory |
+| Client | Client Agent | Calls the factory interface, unaware of concrete types |
+
+: GoF roles translated to the agentic eval suite context {#tbl-abstract-factory-roles}
+
+The responsible AI implications of this structure are significant. Most current agentic deployments treat evaluation as an afterthought — a post-hoc check applied inconsistently, if at all. The Abstract Factory pattern inverts this: evaluation becomes a first-class architectural concern, designed in from the start, consistently applied across all agent types, and independently upgradeable. Critically, the architecture produces evaluation outputs not as transient signals but as governed data assets — versioned, schematised, and queryable across runs — meeting the emerging standard of eval as data product that accountable agentic deployment requires.
+
+## The Stochasticity Delta {#sec-abstract-factory-delta}
+
+The Abstract Factory pattern carries over structurally with one critical extension.
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+In the original GoF formulation, factory products are deterministic software components: a `WindowsButton` behaves identically every time it is instantiated. In agentic AI, the factory's products are themselves LLM-based judges — and LLM-based judges are stochastic. The same judge, given identical inputs, can return different verdicts. A judge can be confidently wrong. Two judges evaluating the same output can disagree without either being obviously incorrect.
+
+This requires a layer that GoF did not anticipate: **meta-evaluation**. The evaluators must themselves be evaluated. This takes the form of inter-rater reliability checks across multiple judges, ensemble voting to produce stable verdicts from stochastic components, and calibration against human-labelled ground truth to detect systematic judge bias.
+
+A second delta property concerns runtime dependency. GoF factory products are self-contained. Agentic judges are not: a judge evaluating a tool-use agent must have access to the agent's execution trace — the full record of tool calls and results — not merely its final output. The factory must therefore be trace-aware, not just output-aware.
+
+A third property concerns the human fallback. When LLM judge confidence falls below an acceptable threshold, the system must escalate to human review. In the agentic Abstract Factory, a `HumanJudge` implements the same `Judge` interface as any LLM judge. From the client agent's perspective, the call is identical regardless of whether a human or a model produces the verdict. Human-in-the-loop review is not a separate architectural concern — it is a factory product.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-abstract-factory-minimal) shows the pattern structure: the abstract interface, three representative concrete factories, their product families, the client agent, the meta-evaluation layer, and the human fallback.
+
+![Abstract Factory pattern — structural diagram. The abstract interface, three concrete factories, their product families, the stochasticity delta, client agent, and human fallback. No runtime annotation.](figures/abstract-factory-minimal.svg){#fig-abstract-factory-minimal}
+
+## Annotated Runtime Diagram
+
+The working conceptual diagram (@fig-abstract-factory-conceptual) annotates each node with its runtime properties: stochasticity, failure modes, the meta-evaluation layer GoF didn't anticipate, and human-in-the-loop reframed as a factory product.
+
+![Abstract Factory pattern — annotated runtime diagram. Runtime behaviour annotated throughout including the meta-evaluation layer and human fallback as factory product.](figures/abstract-factory-conceptual.svg){#fig-abstract-factory-conceptual}
+
+## Canonical Example
+
+### General Form
+
+The three factory types shown in the diagrams — `TaskAgentEvalFactory`, `OrchestratorEvalFactory`, `ReflectionEvalFactory` — cover the main agent roles present in any multi-agent architecture. Any reader can map their own system onto these without modification.
+
+### MetaMind Instantiation
+
+The MetaMind system provides a concrete instantiation in an active research context. MetaMind is a multi-agent architecture for learning theory development from session transcripts. Its pipeline consists of a session capture layer, an Evidence Miner agent (LLM-based), a Theory Builder agent (LLM-based), an evaluation suite, and a longitudinal theory store.
+
+In Abstract Factory terms, the `EvidenceMinerEvalFactory` produces a family of judges suited to retrieval and grounding tasks: a `RetrievalFaithfulnessJudge`, a `CoverageJudge`, and an `OutputQualityJudge`. The `TheoryBuilderEvalFactory` produces a different but internally consistent family: a `LogicalCoherenceJudge`, an `EvidenceGroundingJudge`, and a `NoveltyJudge`. Both factories implement the same `AgentEvalFactory` interface.
+
+The MetaMind architecture's existing Binary Evaluation Suite (LLM-as-Judge) node maps directly to the factory product layer. The `Evals Pass?` decision node is the client consuming factory output. The conditional Human-in-the-Loop Review branch is not a separate architectural concern — it is a `HumanJudge` product from the same factory, triggered when LLM judge confidence falls below threshold.
+
+## Composability {#sec-abstract-factory-composability}
+
+**Decorator** is the most immediate composability relationship. The eval suite produced by an Abstract Factory is typically applied as a Decorator layer wrapping the agent — intercepting outputs before they reach downstream consumers and injecting quality verdicts into the agent's context.
+
+**Memento** provides the persistence layer. Eval results are only meaningful over time if they are stored alongside the agent state snapshots that generated them. A Memento store capturing both reasoning states and eval verdicts creates an auditable record that supports debugging and governance.
+
+**Observer** connects to the Abstract Factory via the result store. Longitudinal analysis components watch the eval result store and update aggregate analyses when new verdicts are committed. The Abstract Factory guarantees the verdicts entering the store are consistently structured.
+
+**Proxy** formalises the human review gate. When a `HumanJudge` is triggered, a Proxy wrapping the downstream consumer intercepts the agent's output and routes it to a human reviewer before allowing it to proceed.
+
+**Command** encapsulates individual judge invocations as discrete, replayable objects — the audit trail for disputed verdicts and the provenance layer that gives each eval output its status as a governed data asset.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Decorator</strong> — eval as wrapper layer</span>
+<span class="ctag"><strong>Memento</strong> — eval result persistence</span>
+<span class="ctag"><strong>Observer</strong> — longitudinal result watching</span>
+<span class="ctag"><strong>Proxy</strong> — human review interception</span>
+<span class="ctag"><strong>Command</strong> — replayable judge invocations</span>
+:::

@@ -1,0 +1,53 @@
+# Framework {#sec-framework}
+
+## The GoF Classification System
+
+The Gang of Four catalogue organises its twenty-three patterns into three categories based on the kind of problem each addresses [@gamma1994design]:
+
+**Creational patterns** govern object creation. They abstract the instantiation process, making systems independent of how their objects are created, composed, and represented. The five creational patterns — Abstract Factory, Builder, Factory Method, Prototype, and Singleton — address different facets of the same fundamental question: who decides what gets created, and how.
+
+**Structural patterns** govern composition. They describe how classes and objects are assembled into larger structures. The seven structural patterns — Adapter, Bridge, Composite, Decorator, Facade, Flyweight, and Proxy — are concerned with the shape of systems: how components are connected, layered, and presented to clients.
+
+**Behavioural patterns** govern communication. They describe how objects interact and distribute responsibility. The eleven behavioural patterns — Chain of Responsibility, Command, Interpreter, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, and Visitor — address the flow of control and information between components.
+
+This three-category structure is preserved in the agentic mapping, with one qualification: the boundaries between categories shift slightly when applied to agentic systems. Behavioural patterns in particular take on greater weight — because the fundamental challenge in agentic AI is not object composition or instantiation, but the governance of reasoning, action, and communication over time.
+
+## Mapping Criteria
+
+Not all twenty-three GoF patterns map equally well to the agentic context. The twelve patterns included in this catalogue were selected against three criteria:
+
+**Structural correspondence.** The GoF pattern's core structural logic — its participants, their relationships, and the problem it solves — must map to a recognisable recurring problem in agentic AI system design. Superficial analogies do not qualify. The mapping must hold at the level of the pattern's participants and their responsibilities.
+
+**Practical recurrence.** The problem the pattern addresses must appear repeatedly in real agentic systems — not just theoretically conceivable ones. Patterns were included only where evidence of the problem (and of ad hoc solutions to it) is visible in practitioner systems, published architectures, or the authors' own systems.
+
+**Non-trivial translation.** The pattern must require meaningful adaptation for the agentic context. Patterns that translate directly with no extension are less interesting theoretically. Patterns that require the stochasticity delta — that expose a genuine gap between GoF assumptions and agentic reality — are more interesting and more useful.
+
+Eleven GoF patterns did not meet these criteria and are excluded. Their exclusion is noted where relevant: Factory Method, for instance, is acknowledged in the Strategy chapter as a pattern whose concerns collapse into Strategy in the agentic context.
+
+## The Stochasticity Delta {#sec-delta}
+
+Every pattern in this catalogue is presented with a stochasticity delta section. This section documents the gap between what the GoF pattern assumes and what the agentic context requires. The delta is not uniform across patterns — some patterns require minor extensions, others require fundamentally new layers.
+
+The stochasticity delta has four principal components:
+
+**Non-determinism.** GoF patterns assume that components called with identical inputs return identical outputs. LLM-based agents do not. A judge that evaluated an output as passing yesterday may evaluate an identical output as failing today. A reasoning strategy that produced a correct answer on one run may produce an incorrect answer on the next. This non-determinism propagates through pattern compositions: a Decorator wrapping a non-deterministic agent is itself non-deterministic, a Factory producing LLM-based judges produces non-deterministic products. Every pattern that involves LLM components must account for this explicitly.
+
+**Ambiguous failure.** GoF patterns assume that failures are explicit — an exception is thrown, a null is returned, an error code is propagated. LLM-based agents fail ambiguously: they produce confident, fluent, plausible-sounding outputs that are nevertheless wrong. This makes error detection a first-class architectural concern rather than a language-level mechanism. Patterns that involve error handling — Chain of Responsibility, Decorator, Command — require explicit failure detection layers that GoF never needed.
+
+**Context accumulation.** GoF patterns assume components are stateless or explicitly stateful. LLM-based agents accumulate context across steps in ways that interact with their probabilistic behaviour non-trivially. A Strategy that worked well in the first three steps of a reasoning chain may behave differently in step seven because the accumulated context has shifted the model's probability distribution. Patterns that involve sequencing or substitution — Strategy, Template Method, Chain of Responsibility — must account for context accumulation explicitly.
+
+**Meta-evaluation.** Because LLM-based components are non-deterministic and fail ambiguously, evaluating them requires a layer that has no GoF equivalent. Judges must themselves be judged. Factories that produce evaluators must account for the reliability of those evaluators. This meta-evaluation layer — inter-rater reliability checks, ensemble voting, calibration against ground truth — appears in multiple patterns and is a consistent feature of the stochasticity delta throughout the catalogue.
+
+## The Responsible AI Thread
+
+A consistent thread runs through all twelve patterns: the relationship between architectural structure and responsible AI deployment. This is not coincidental. The same properties that make a system architecturally sound — observability, testability, composability, auditability — are the properties that make it accountable.
+
+Each pattern entry identifies the responsible AI implications of its structure. The Abstract Factory pattern makes evaluation a first-class architectural concern. The Command pattern makes tool invocations auditable and replayable. The Singleton pattern enforces uniform safety constraints across agent fleets. The Memento pattern creates the state snapshots that governance and accountability require. Taken together, the catalogue describes not only how to build agentic systems that work, but how to build agentic systems that can be trusted.
+
+## The Eval as Data Product Principle
+
+A further principle runs through the catalogue that deserves explicit statement here. Evaluation outputs in agentic systems should not be treated as transient signals — verdicts produced, consumed, and discarded. They should be treated as governed data assets: versioned, schematised, owned, and queryable across runs.
+
+This principle, sometimes called *eval as data product* in the data mesh literature, has direct architectural implications. It requires that evaluation outputs have a defined schema (Abstract Factory), that individual judge invocations are logged with full provenance (Command), that results are accumulated in a queryable store (Memento), and that downstream components can react to new results without polling (Observer). These four patterns compose into a complete eval data product infrastructure, described in detail in @sec-composability.
+
+The NLI case study in @sec-case-study demonstrates this infrastructure in a production research context.

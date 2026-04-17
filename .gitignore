@@ -1,0 +1,7 @@
+/.quarto/
+/docs/
+*.html
+!figures/*.html
+.DS_Store
+
+**/*.quarto_ipynb

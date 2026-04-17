@@ -1,0 +1,43 @@
+# Preface {.unnumbered}
+
+This book presents a formal mapping between the classical Gang of Four (GoF) design pattern catalogue and the emerging architectural problems of agentic AI systems. It is both a theoretical contribution and a practical reference.
+
+## What this book is
+
+In 1994, Gamma, Helm, Johnson, and Vlissides published *Design Patterns: Elements of Reusable Object-Oriented Software* — a work that fundamentally changed how software engineers think about recurring architectural problems. The twenty-three patterns it catalogued gave practitioners a shared vocabulary for solutions that had previously been rediscovered independently, inconsistently, and often incorrectly.
+
+Three decades later, a structurally similar moment is emerging in agentic AI. Systems built on large language models are increasingly deployed as autonomous agents that reason across multiple steps, invoke external tools, coordinate with other agents, evaluate and revise their own outputs, and operate under conditions of genuine uncertainty. The engineering problems this creates are recurring across research systems, production deployments, and framework implementations. A formalising vocabulary does not yet exist.
+
+This book argues that twelve of the original twenty-three GoF patterns map meaningfully to these recurring problems — and that the mapping requires a principled extension we term the *stochasticity delta*: the set of properties that LLM-based agents possess that classical software components do not.
+
+## What this book is not
+
+This is not a tutorial on how to build agentic AI systems. It does not cover specific frameworks, model providers, or deployment infrastructure. It is concerned with architectural structure — with the shape of systems, not their implementation details.
+
+## How to use this book
+
+Each pattern entry follows a consistent structure:
+
+- **GoF original definition** — the canonical formulation from the 1994 catalogue
+- **Translation argument** — why and how the pattern maps to agentic AI
+- **The stochasticity delta** — what the agentic context requires that GoF did not anticipate
+- **Structural diagram** — publication-ready figure showing the pattern in its agentic form
+- **Annotated runtime diagram** — the same structure with runtime behaviour and failure modes annotated
+- **Canonical example** — a concrete instantiation drawn from real systems
+- **Composability** — which other patterns this one typically appears alongside, and why
+
+Readers familiar with the GoF catalogue can navigate directly to patterns of interest. Readers new to design patterns are encouraged to read @sec-framework before the pattern chapters, as it establishes the mapping criteria and the stochasticity delta concept that runs through the entire catalogue.
+
+## A note on the companion system
+
+Several canonical examples in this book are drawn from the Next Level Insight (NLI) system — a person-centred, governed AI platform for wellness and learning analytics developed at the Centre for Change and Complexity in Learning (C3L), Adelaide University. The NLI system sits on top of the Global Data Consortium federated data architecture and implements the pattern catalogue described here across a full multi-agent pipeline. Where NLI is used as an example, the mapping to its codebase structure is made explicit.
+
+## Acknowledgements
+
+This work builds directly on the GoF pattern catalogue [@gamma1994design] and on recent practitioner efforts to develop vocabulary for agentic system design [@priyac2026roadmap]. We are grateful to colleagues at C3L, Adelaide University, and the broader learning analytics community for conversations that sharpened these arguments.
+
+## License {.unnumbered}
+
+This book is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt the material for any purpose, provided you give appropriate credit.
+
+Source code is available at [github.com/c3l-ai/agentic-design-patterns](https://github.com/c3l-ai/agentic-design-patterns).

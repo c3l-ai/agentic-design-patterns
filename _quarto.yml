@@ -1,0 +1,94 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "From Objects to Agents"
+  subtitle: "Repurposing Classical Design Patterns for Agentic AI Systems"
+  author:
+    - name: Srecko Joksimovic
+      affiliations:
+        - name: Centre for Change and Complexity in Learning (C3L), Adelaide University
+      orcid: 0000-0001-6632-3812
+    - name: George Siemens
+      affiliations:
+        - name: University of Texas at Arlington
+  date: today
+  date-format: "MMMM YYYY"
+
+  chapters:
+    - index.qmd
+    - 01-introduction.qmd
+    - 02-framework.qmd
+    - part: "Creational Patterns"
+      chapters:
+        - patterns/creational/abstract-factory.qmd
+        - patterns/creational/builder.qmd
+        - patterns/creational/singleton.qmd
+    - part: "Structural Patterns"
+      chapters:
+        - patterns/structural/decorator.qmd
+        - patterns/structural/facade.qmd
+        - patterns/structural/composite.qmd
+    - part: "Behavioural Patterns"
+      chapters:
+        - patterns/behavioural/strategy.qmd
+        - patterns/behavioural/chain-of-responsibility.qmd
+        - patterns/behavioural/command.qmd
+        - patterns/behavioural/observer.qmd
+        - patterns/behavioural/template-method.qmd
+        - patterns/behavioural/mediator.qmd
+        - patterns/behavioural/memento.qmd
+        - patterns/behavioural/state.qmd
+    - 06-composability.qmd
+    - 07-case-study.qmd
+    - references.qmd
+
+  appendices:
+    - appendix-pattern-catalogue.qmd
+
+  repo-url: https://github.com/c3l-ai/agentic-design-patterns
+  repo-actions: [edit, issue]
+
+  favicon: figures/favicon.png
+
+  sidebar:
+    style: docked
+    background: light
+
+  page-footer:
+    left: |
+      *From Objects to Agents* by Joksimovic & Siemens
+    right: |
+      This book is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+  open-graph: true
+  twitter-card: true
+
+bibliography: references.bib
+csl: https://www.zotero.org/styles/apa
+
+format:
+  html:
+    theme:
+      light: [cosmo, custom.scss]
+    code-link: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    fig-align: center
+    callout-appearance: simple
+    smooth-scroll: true
+    link-external-icon: true
+    link-external-newwindow: true
+  pdf:
+    documentclass: scrbook
+    papersize: a4
+    toc: true
+    number-sections: true
+    colorlinks: true
+    fig-align: center
+    include-in-header:
+      text: |
+        \usepackage{microtype}
+        \usepackage{lmodern}
