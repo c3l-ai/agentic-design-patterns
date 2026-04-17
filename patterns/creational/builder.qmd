@@ -1,0 +1,92 @@
+# Builder {#sec-builder}
+
+::: {.pattern-category}
+Creational · Pattern 2 of 13
+:::
+
+::: {.gof-box}
+Separate the construction of a complex object from its representation so that the same construction process can create different representations.
+
+::: {.gof-source}
+@gamma1994design, p. 97
+:::
+:::
+
+## The Translation Argument
+
+The Builder pattern addresses a construction problem. When assembling a complex object requires many interdependent steps — and when the same sequence of steps must yield structurally different but internally coherent results depending on configuration — Builder separates the construction logic from the representation it produces. The Director controls the sequence. The concrete Builder controls what each step produces. The client receives a fully assembled product without knowledge of how it was constructed or which concrete builder was used.
+
+In agentic AI systems, the equivalent problem is multi-agent pipeline assembly. A pipeline that ingests wearable physiological data, extracts behavioural insights, deploys structured data products, and supports user reflection through conversational interaction is not a single agent — it is an assembly of specialised agents, data connectors, eval layers, and shared state stores. That assembly is complex, interdependent, and context-sensitive: a pipeline built for an athlete with wearable data only is structurally different from one that also integrates learning management system data and a reflective interaction component. The construction sequence, however, is identical in both cases.
+
+The Builder pattern names this structure explicitly. A `PipelineDirector` enforces the construction sequence: configure data ingestion, configure insight agents, configure data product deployment, configure reflection component, configure eval suite, wire dependencies, build. Concrete builders — `WearablePipelineBuilder`, `LMSPipelineBuilder`, `ReflectivePipelineBuilder` — implement each step differently, producing pipelines of increasing complexity. The client requests a pipeline through the Director without specifying which concrete builder is used or how the agents within it are assembled.
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Director | `PipelineDirector` | Enforces construction sequence. Unaware of concrete builder or configuration details. |
+| Abstract Builder | `AgentPipelineBuilder` | Defines construction steps as interface: `configureIngestion()`, `configureInsightAgents()`, `configureReflection()`, `configureEvals()`, `build()` |
+| Concrete Builder | `WearablePipelineBuilder`, `LMSPipelineBuilder`, `ReflectivePipelineBuilder` | Implements each step for a specific pipeline configuration. Assembles the appropriate agents, connectors, and eval suites. |
+| Product | `AgentPipeline` | The fully assembled, ready-to-run pipeline. Structurally coherent and internally consistent. |
+
+: GoF roles translated to the agentic pipeline assembly context {#tbl-builder-roles}
+
+The responsible AI implication of this structure is significant. Because `configureEvals()` is a mandatory step in the Director's construction sequence, no pipeline can be assembled without an evaluation layer. This is a stronger guarantee than convention or documentation — the Director makes it architecturally impossible to skip. Eval suite integration becomes a construction-time guarantee rather than a runtime afterthought, and the appropriate eval factory for each agent type is called within that step, composing Builder directly with the Abstract Factory pattern.
+
+## The Stochasticity Delta {#sec-builder-delta}
+
+The Builder pattern carries over structurally with three extensions required by the agentic context.
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**Behavioural non-determinism of the product.** In GoF, a fully constructed product behaves predictably — a document assembled by a Builder is fixed once construction completes. In agentic AI, the product is a pipeline of LLM-based agents whose runtime behaviour is partially non-deterministic even when their construction is fully specified. The Builder guarantees structural coherence. It cannot guarantee behavioural consistency. This distinction must be made explicit in system documentation and eval design.
+
+**Conditional construction.** GoF Builder assumes all construction steps complete successfully. Agentic pipeline construction may encounter runtime failures — a data connector offline, an agent dependency unavailable, a configuration parameter unresolvable. The concrete builder must implement fallback logic: if the LMS connector is unavailable, the `LMSPipelineBuilder` should either degrade gracefully to a `WearablePipelineBuilder` configuration or halt with a structured error that the Director can handle. This conditional construction logic has no GoF equivalent.
+
+**Synchrony mismatch between pipeline components.** A pipeline that combines background insight extraction with a foreground reflection component contains agents operating on fundamentally different temporal models. Background agents are asynchronous and batch-oriented. The reflection agent is synchronous and conversational. The Builder must wire these components with explicit dependency resolution: the reflection agent requires read access to background agent outputs, but those outputs may not be available at the moment the user initiates a reflection session. The `configureReflection()` step must account for this by establishing an asynchronous handoff point rather than a direct dependency.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-builder-minimal) shows the four GoF roles translated to the agentic context: the Director enforcing the construction sequence, the abstract builder interface, three concrete builders producing pipelines of increasing complexity, and the assembled pipeline products.
+
+![Builder pattern — structural diagram. The Director, abstract builder interface, three concrete builders, their pipeline products, and the stochasticity delta.](figures/builder-minimal.svg){#fig-builder-minimal}
+
+## Annotated Runtime Diagram
+
+The working conceptual diagram (@fig-builder-conceptual) annotates each node with its runtime properties: construction sequence enforcement, conditional fallback logic, synchrony classification of assembled agents, and the eval integration guarantee.
+
+![Builder pattern — annotated runtime diagram. Construction sequence enforcement, conditional fallback logic, synchrony mismatch, and mandatory eval integration step annotated throughout.](figures/builder-conceptual.svg){#fig-builder-conceptual}
+
+## Canonical Example — Athletic Performance and Learning Analytics
+
+Consider a longitudinal research platform designed to monitor and support adolescent development across both athletic and academic contexts. The platform collects physiological data from wearable devices during training and competition, academic performance data from a learning management system, and qualitative self-report data through a conversational reflection interface. These three data streams require three structurally different but architecturally consistent agent pipelines.
+
+The `WearablePipelineBuilder` assembles the baseline configuration: a wearable ingestion agent that normalises sensor data across device types, a background insight extraction agent that identifies physiological patterns — heart rate variability, exertion profiles, recovery indicators — and a data product deployment layer that makes these insights queryable. The eval suite is tuned to sensor data quality, ingestion fidelity, and insight coherence.
+
+The `LMSPipelineBuilder` extends this with an LMS connector agent and a cross-source correlation agent that identifies relationships between physiological state and academic performance. If the LMS connector is unavailable — scheduled maintenance, API changes, institutional access restrictions — the builder degrades gracefully to the wearable-only configuration rather than halting pipeline construction.
+
+The `ReflectivePipelineBuilder` adds the conversational reflection component: an agent that invites the user to reflect on their session, capturing qualitative observations, and a metacognitive state tracker that accumulates these observations alongside the quantitative data. The synchrony mismatch is resolved at construction time: the reflection agent is given read access to a shared context store populated by the background agents, with a staleness threshold that determines how recent the background data must be before the reflection session is initiated.
+
+In all three cases, the `PipelineDirector` enforces the same construction sequence. The client receives a fully assembled, eval-instrumented pipeline without knowledge of which agents were assembled or how they were configured.
+
+## Composability {#sec-builder-composability}
+
+**Abstract Factory** is the most direct compositional relationship. The `configureEvals()` step in each concrete builder calls the appropriate `AgentEvalFactory` for each agent type in the pipeline. The Builder determines which agents are assembled; the Abstract Factory determines which eval suite each agent receives.
+
+**Facade** hides the complexity of data source connectors from the Builder. The LMS connector, the wearable device APIs, the reflection interface — each is a Facade presenting a clean interface to the builder's `configureIngestion()` step. Adding a new data source requires only a new Facade, not a new builder.
+
+**Decorator** applies post-construction. Once a pipeline is assembled, individual agents can be wrapped with additional concerns — rate limiting, logging, guardrail enforcement — without modifying the builder or the pipeline structure. Builder and Decorator operate at different stages: Builder at construction time, Decorator at deployment time.
+
+**Singleton** manages the shared context store that the `ReflectivePipelineBuilder` requires. Background agents and the reflection agent both need access to a single, authoritative context store — multiple instances would produce inconsistent state and undermine the reflection agent's ability to reason about accumulated data.
+
+**Memento** provides construction rollback. If a construction step fails, the Director can restore the pipeline to the last valid construction state rather than discarding the partially assembled pipeline entirely. This is the agentic equivalent of transactional construction.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Abstract Factory</strong> — eval suite per agent type</span>
+<span class="ctag"><strong>Facade</strong> — data source connector abstraction</span>
+<span class="ctag"><strong>Decorator</strong> — post-construction agent wrapping</span>
+<span class="ctag"><strong>Singleton</strong> — shared context store</span>
+<span class="ctag"><strong>Memento</strong> — construction rollback</span>
+:::
