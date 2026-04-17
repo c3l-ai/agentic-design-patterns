@@ -12,7 +12,7 @@ book:
       orcid: 0000-0001-6632-3812
     - name: George Siemens
       affiliations:
-        - name: University of Texas at Arlington
+        - name: Southern New Hampshire University
   date: today
   date-format: "MMMM YYYY"
 
