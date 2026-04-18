@@ -1,0 +1,98 @@
+# Decorator {#sec-decorator}
+
+::: {.pattern-category}
+Structural · Pattern 5 of 14
+:::
+
+::: {.gof-box}
+Attach additional responsibilities to an object dynamically. Decorators provide a flexible alternative to subclassing for extending functionality.
+
+::: {.gof-source}
+@gamma1994design, p. 175
+:::
+:::
+
+## The Translation Argument
+
+The Decorator pattern solves an extension problem. When a component needs additional responsibilities — logging, caching, validation, access control — Decorator wraps the component with a new layer that adds the responsibility while preserving the original interface. The component does not know it has been wrapped. The client does not know either. Multiple decorators can be stacked, each adding one concern, each passing through to the next. The result is composable, independently testable behaviour without touching the underlying component.
+
+In agentic AI systems, the equivalent problem is composable agent wrapping. A `BaseReActAgent` should not contain guardrail logic, logging infrastructure, reflection cycles, or rate limiting. These are cross-cutting concerns that need to be applied consistently across many agent types, updated independently when policies change, and audited separately from core reasoning logic. Decorator makes that separation structural rather than a matter of discipline.
+
+Four decorator types address the core concerns of agentic deployment. They fall into two classes based on their activation model. **Always-active decorators** — `GuardrailDecorator` and `LoggingDecorator` — apply to every agent output regardless of context. They form the mandatory safety and observability layer. **Context-specific decorators** — `ReflectionDecorator` and `RateLimitDecorator` — are activated based on task type, quality requirements, or cost constraints.
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Component | `Agent` interface | Defines `execute(task) → response`. Both base agents and decorators implement it. |
+| Concrete Component | `BaseReActAgent`, any leaf agent | Core reasoning implementation. No knowledge of wrappers. Replaceable independently of the stack. |
+| Abstract Decorator | `AgentDecorator` | Holds a reference to a wrapped `Agent`. Delegates `execute(task)` to the wrapped component. |
+| Concrete Decorator | `GuardrailDecorator`, `LoggingDecorator`, `ReflectionDecorator`, `RateLimitDecorator` | Each adds one cross-cutting concern. Stackable with ordering constraints. |
+
+: GoF roles translated to the agentic composable wrapper context {#tbl-decorator-roles}
+
+The responsible AI argument for Decorator is stronger than for most patterns in this catalogue. If guardrail enforcement lives inside the agent, updating a safety policy requires modifying and retesting the agent. If it lives in a `GuardrailDecorator`, the safety layer is updated in isolation, independently auditable, and consistently applied across all agent types. Decorator is not just an architectural convenience — it is the structural mechanism that makes safety concerns governable at scale.
+
+## The Four Decorators
+
+**GuardrailDecorator** intercepts every output before it reaches the client. It reads the current `SafetyConstraintStore` singleton and checks the output against active constraints. On violation it blocks or transforms before returning. It must be the outermost decorator — it must see the final output after any reflection or revision, not an intermediate state.
+
+**LoggingDecorator** emits step-level traces asynchronously. It captures tool call and result pairs, reasoning steps, and inputs and outputs with timestamps. It is non-blocking — async write, no latency impact. It produces EDP1 in the eval data product framework. It sits just inside the guardrail: it logs the output that actually passed safety checks, not any pre-guardrail version.
+
+**ReflectionDecorator** wraps an agent with a generate-critique-revise cycle. It calls the base agent, passes the output to a separate critic with a different prompt, then passes the critique back for revision. It adds latency deliberately and should only be activated when output quality matters more than response speed. It requires an explicit iteration cap and a convergence check: if the revised output scores lower than the previous version, return the prior version.
+
+**RateLimitDecorator** throttles model calls per unit time. It maintains a token budget and a call counter. It is the only decorator in the standard stack that does not involve LLM calls and is therefore deterministic.
+
+::: {.callout-note .callout-tension}
+## Decorator Ordering — a safety constraint, not a style preference
+
+In GoF, decorator ordering rarely affects correctness — independent features can be stacked in either order. In agentic AI, ordering is a safety concern. The canonical stack from outermost to innermost is: **GuardrailDecorator → LoggingDecorator → RateLimitDecorator → ReflectionDecorator → BaseAgent**.
+
+GuardrailDecorator must be outermost — it must see the final output the client receives. LoggingDecorator must sit just inside — it logs guardrail-approved outputs only. RateLimitDecorator before ReflectionDecorator — no point running an expensive reflection cycle on a call that will be rate-limited. Getting this ordering wrong produces safety gaps and inaccurate audit trails.
+:::
+
+## The Stochasticity Delta {#sec-decorator-delta}
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**ReflectionDecorator is itself stochastic.** The critique step involves an LLM. The revision step involves an LLM. Unlike GoF decorators which deterministically add their feature, an agentic `ReflectionDecorator` may produce a worse output than the base agent after multiple revision cycles. This requires an explicit convergence check: if the revised output scores lower than the prior version on the eval suite, the decorator should return the prior version rather than the revision. The iteration cap and convergence check together govern the decorator's behaviour in a way that has no GoF equivalent.
+
+**Decorator ordering has safety consequences.** In classical OOP, two decorators adding independent features can be stacked in either order without affecting correctness. In agentic AI, the guardrail decorator must be outermost and the logging decorator must log the guardrail-approved output. Reversing this order creates exploitable safety gaps: a violating output could be logged as a completed response before the guardrail catches it, corrupting the audit trail. Ordering is a safety requirement, not a style preference.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-decorator-minimal) shows the decorator stack from outermost to innermost, the two activation classes, the canonical ordering constraint, and the stochasticity delta properties for each decorator type.
+
+![Decorator pattern — structural diagram. Stack from outermost to innermost: GuardrailDecorator and LoggingDecorator always active, RateLimitDecorator and ReflectionDecorator context-specific, BaseReActAgent at core. Canonical ordering is a safety constraint.](../../figures/decorator-minimal.svg){#fig-decorator-minimal}
+
+## Canonical Example — NLI Agent Layer and Frontend Layer
+
+The Decorator pattern appears at two distinct levels in the NLI architecture simultaneously.
+
+At the **agent layer**, every agent in `nli_agents` is wrapped with the standard decorator stack before registration with the `ConversationOrchestrator`. The `GuardrailDecorator` reads the `SafetyConstraintStore` singleton — which in NLI includes both content safety constraints and the data governance constraints from the Global Data Consortium consent framework. No agent output reaches a user without passing through this layer. The `LoggingDecorator` produces EDP1 traces for every interaction. The `ReflectionDecorator` is activated selectively — for the `PlannerCoachAgent` and `ExperienceCaptureAgent` where quality justifies the latency cost, but not for the `PersonalDataQAAgent` answering simple factual queries.
+
+At the **frontend layer**, the same structural logic applies to UI components. `ConsentDecorator` and `GuardrailDecorator` are always active. `ChatbotDecorator`, `WellnessDecorator`, and `CoachDecorator` are context-specific — activated by user role and session type, stackable when multiple contexts are active.
+
+The presence of Decorator at both layers illustrates a general property: Decorator is not a single-level pattern. In complex systems it appears at every level where cross-cutting concerns need to be applied consistently to a common interface.
+
+## Composability {#sec-decorator-composability}
+
+**Singleton** is the most direct dependency. `GuardrailDecorator` reads `SafetyConstraintStore` on every call. If the singleton is unreachable, the decorator must block — a missing safety check is worse than no response.
+
+**Abstract Factory** connects through the logging layer. Every EDP1 trace produced by `LoggingDecorator` feeds the eval data product pipeline. The Abstract Factory's judge suite operates on these traces to produce EDP2 judge scores. Decorator is the data source; Abstract Factory is the evaluation infrastructure.
+
+**Command** connects to the logging layer. `LoggingDecorator` encapsulates each intercepted call as a Command object with full provenance — agent ID, inputs, outputs, timestamp. This gives each logged interaction its status as a governed data asset.
+
+**Composite** and Decorator operate at different structural levels. Decorator wraps individual leaf nodes; the composite node above is unaware of the decorator stacks on its children. Adding a decorator to a leaf requires no change to the composite.
+
+**Strategy** sits inside the decorator stack. A `GuardrailDecorator` wrapping an `AgentRunner` adds safety checking to every strategy that runner might execute, without modifying any strategy implementation.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Singleton</strong> — safety and budget constraint stores</span>
+<span class="ctag"><strong>Abstract Factory</strong> — logging feeds eval pipeline</span>
+<span class="ctag"><strong>Command</strong> — logged interactions as governed assets</span>
+<span class="ctag"><strong>Composite</strong> — wraps leaf nodes independently</span>
+<span class="ctag"><strong>Strategy</strong> — stack sits above strategy selection</span>
+:::

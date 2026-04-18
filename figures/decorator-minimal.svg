@@ -1,0 +1,76 @@
+<svg width="560" height="560" viewBox="0 0 560 560" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Client -->
+  <rect x="180" y="10" width="200" height="36" rx="3" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="28" text-anchor="middle" font-size="9.5" fill="#64748b">Client</text>
+  <text x="280" y="40" text-anchor="middle" font-size="8" fill="#94a3b8">calls agent.execute(task)</text>
+  <line x1="280" y1="46" x2="280" y2="62" stroke="#94a3b8" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <!-- Always-active label -->
+  <text x="16" y="74" font-size="7.5" fill="#f97316" letter-spacing="0.5">ALWAYS ACTIVE</text>
+  <line x1="112" y1="70" x2="544" y2="70" stroke="#fed7aa" stroke-width="0.5"/>
+
+  <!-- GuardrailDecorator -->
+  <rect x="40" y="62" width="480" height="52" rx="3" fill="#fff7ed" stroke="#fdba74" stroke-width="1.25"/>
+  <text x="280" y="80" text-anchor="middle" font-size="10" font-weight="500" fill="#9a3412">GuardrailDecorator</text>
+  <line x1="50" y1="84" x2="510" y2="84" stroke="#fed7aa" stroke-width="0.5"/>
+  <text x="280" y="95" text-anchor="middle" font-size="8" fill="#9a3412">intercept() → check SafetyConstraintStore → block or pass</text>
+  <text x="280" y="107" text-anchor="middle" font-size="7.5" fill="#c2410c">outermost · safety-critical · reads singleton · always active</text>
+  <line x1="280" y1="114" x2="280" y2="126" stroke="#fdba74" stroke-width="0.75"/>
+
+  <!-- LoggingDecorator -->
+  <rect x="60" y="126" width="440" height="52" rx="3" fill="#fff7ed" stroke="#fdba74" stroke-width="1"/>
+  <text x="280" y="144" text-anchor="middle" font-size="10" font-weight="500" fill="#9a3412">LoggingDecorator</text>
+  <line x1="70" y1="148" x2="490" y2="148" stroke="#fed7aa" stroke-width="0.5"/>
+  <text x="280" y="159" text-anchor="middle" font-size="8" fill="#9a3412">intercept() → emit EDP1 trace (async) → pass</text>
+  <text x="280" y="171" text-anchor="middle" font-size="7.5" fill="#c2410c">non-blocking · logs guardrail-approved output · always active</text>
+  <line x1="280" y1="178" x2="280" y2="194" stroke="#fdba74" stroke-width="0.75"/>
+
+  <!-- Context-specific label -->
+  <text x="16" y="206" font-size="7.5" fill="#0284c7" letter-spacing="0.5">CONTEXT-SPECIFIC</text>
+  <line x1="125" y1="202" x2="544" y2="202" stroke="#bae6fd" stroke-width="0.5"/>
+
+  <!-- RateLimitDecorator -->
+  <rect x="80" y="194" width="400" height="52" rx="3" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="280" y="212" text-anchor="middle" font-size="10" font-weight="500" fill="#0369a1">RateLimitDecorator</text>
+  <line x1="90" y1="216" x2="470" y2="216" stroke="#bae6fd" stroke-width="0.5"/>
+  <text x="280" y="227" text-anchor="middle" font-size="8" fill="#0369a1">intercept() → check budget → queue / reject / pass</text>
+  <text x="280" y="239" text-anchor="middle" font-size="7.5" fill="#0284c7">deterministic · no LLM calls · token budget tracking</text>
+  <line x1="280" y1="246" x2="280" y2="258" stroke="#7dd3fc" stroke-width="0.75"/>
+
+  <!-- ReflectionDecorator -->
+  <rect x="100" y="258" width="360" height="64" rx="3" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="280" y="276" text-anchor="middle" font-size="10" font-weight="500" fill="#0369a1">ReflectionDecorator</text>
+  <line x1="110" y1="280" x2="450" y2="280" stroke="#bae6fd" stroke-width="0.5"/>
+  <text x="280" y="291" text-anchor="middle" font-size="8" fill="#0369a1">intercept() → generate → critique → revise → converge check</text>
+  <text x="280" y="303" text-anchor="middle" font-size="7.5" fill="#0284c7">stochastic · may produce worse output · iteration cap required</text>
+  <text x="280" y="315" text-anchor="middle" font-size="7.5" fill="#0284c7">convergence check: return best version, not latest</text>
+  <line x1="280" y1="322" x2="280" y2="334" stroke="#7dd3fc" stroke-width="0.75"/>
+
+  <!-- Base Agent -->
+  <rect x="160" y="334" width="240" height="64" rx="3" fill="#1a1a1a" stroke="#374151" stroke-width="1"/>
+  <text x="280" y="354" text-anchor="middle" font-size="10" font-weight="500" fill="#e5e7eb">BaseReActAgent</text>
+  <line x1="170" y1="358" x2="390" y2="358" stroke="#374151" stroke-width="0.5"/>
+  <text x="280" y="370" text-anchor="middle" font-size="8.5" fill="#9ca3af">think() · act() · observe()</text>
+  <text x="280" y="382" text-anchor="middle" font-size="8" fill="#6b7280">no knowledge of wrappers</text>
+  <text x="280" y="394" text-anchor="middle" font-size="7.5" fill="#4b5563">replaceable independently of decorator stack</text>
+
+  <!-- Nesting bracket -->
+  <path d="M 36 62 L 28 62 L 28 398 L 36 398" stroke="#fed7aa" stroke-width="1" fill="none"/>
+  <text x="16" y="232" text-anchor="middle" font-size="7" fill="#f97316" transform="rotate(-90,16,232)">wraps</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="280" y1="398" x2="280" y2="414" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="40" y="414" width="480" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="280" y="432" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — two agentic extensions</text>
+  <line x1="60" y1="438" x2="500" y2="438" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="280" y="452" text-anchor="middle" font-size="8.5" fill="#78350f">1. ReflectionDecorator is stochastic — may produce worse output than base agent</text>
+  <text x="280" y="466" text-anchor="middle" font-size="8.5" fill="#78350f">Convergence check + iteration cap required — return best, not latest</text>
+  <text x="280" y="480" text-anchor="middle" font-size="8.5" fill="#78350f">2. Ordering is a safety constraint — GuardrailDecorator must be outermost</text>
+
+  <!-- Composability -->
+  <line x1="280" y1="486" x2="280" y2="502" stroke="#eee" stroke-width="0.75"/>
+  <rect x="40" y="502" width="480" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="280" y="520" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Singleton · Abstract Factory · Command · Composite · Strategy</text>
+
+</svg>
