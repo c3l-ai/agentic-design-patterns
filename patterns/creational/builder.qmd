@@ -51,7 +51,7 @@ The Builder pattern carries over structurally with three extensions required by 
 
 The minimal diagram (@fig-builder-minimal) shows the four GoF roles translated to the agentic context: the Director enforcing the construction sequence, the abstract builder interface, three concrete builders producing pipelines of increasing complexity, and the assembled pipeline products.
 
-![Builder pattern — structural diagram. The Director, abstract builder interface, three concrete builders, their pipeline products, and the stochasticity delta.](figures/builder-minimal.svg){#fig-builder-minimal}
+![Builder pattern — structural diagram. The Director, abstract builder interface, three concrete builders, their pipeline products, and the stochasticity delta.](../../figures/builder-minimal.svg){#fig-builder-minimal}
 
 
 ## Canonical Example — Athletic Performance and Learning Analytics

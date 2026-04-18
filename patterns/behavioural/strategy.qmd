@@ -68,7 +68,7 @@ The metacognitive dimension of strategy selection deserves particular attention.
 
 The minimal diagram (@fig-strategy-minimal) shows the AgentRunner as Context, the abstract ReasoningStrategy interface, the five concrete strategies, the runtime substitution mechanism, and the stochasticity delta.
 
-![Strategy pattern — structural diagram. The AgentRunner as Context, abstract ReasoningStrategy interface, five concrete strategies drawn from the practitioner literature, runtime substitution, and the Factory Method tension.](figures/strategy-minimal.svg){#fig-strategy-minimal}
+![Strategy pattern — structural diagram. The AgentRunner as Context, abstract ReasoningStrategy interface, five concrete strategies drawn from the practitioner literature, runtime substitution, and the Factory Method tension.](../../figures/strategy-minimal.svg){#fig-strategy-minimal}
 
 
 ## Canonical Example — Learning Analytics Agent

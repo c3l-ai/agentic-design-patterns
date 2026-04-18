@@ -48,7 +48,7 @@ Singleton is the most structurally thin mapping in this catalogue. Its primary c
 
 The minimal diagram (@fig-singleton-minimal) shows both singleton classes, their instances, the global access point, representative client agents, and the stochasticity delta.
 
-![Singleton pattern — structural diagram. Both singleton classes, the global access point, representative client agents, and the stochasticity delta.](figures/singleton-minimal.svg){#fig-singleton-minimal}
+![Singleton pattern — structural diagram. Both singleton classes, the global access point, representative client agents, and the stochasticity delta.](../../figures/singleton-minimal.svg){#fig-singleton-minimal}
 
 
 ## Canonical Example — Wellness Monitoring Pipeline

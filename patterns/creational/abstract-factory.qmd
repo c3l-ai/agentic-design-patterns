@@ -54,7 +54,7 @@ A third property concerns the human fallback. When LLM judge confidence falls be
 
 The minimal diagram (@fig-abstract-factory-minimal) shows the pattern structure: the abstract interface, three representative concrete factories, their product families, the client agent, the meta-evaluation layer, and the human fallback.
 
-![Abstract Factory pattern — structural diagram. The abstract interface, three concrete factories, their product families, the stochasticity delta, client agent, and human fallback. No runtime annotation.](figures/abstract-factory-minimal.svg){#fig-abstract-factory-minimal}
+![Abstract Factory pattern — structural diagram. The abstract interface, three concrete factories, their product families, the stochasticity delta, client agent, and human fallback. No runtime annotation.](../../figures/abstract-factory-minimal.svg){#fig-abstract-factory-minimal}
 
 
 ## Canonical Example
