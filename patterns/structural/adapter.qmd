@@ -1,0 +1,113 @@
+# Adapter {#sec-adapter}
+
+::: {.pattern-category}
+Structural · Pattern 4 of 14
+:::
+
+::: {.gof-box}
+Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.
+
+::: {.gof-source}
+@gamma1994design, p. 139
+:::
+:::
+
+## The Translation Argument
+
+The Adapter pattern solves an incompatibility problem. When a useful component exists but its interface does not match what the client expects, Adapter wraps it — translating calls from the client's expected interface into calls the component actually understands. The client never knows the adaptation happened. The component is never modified. The gap between them is bridged entirely within the adapter.
+
+The key distinction from neighbouring structural patterns is worth establishing immediately. Facade simplifies a complex subsystem — the subsystem's interface is not wrong, it is just complicated. Decorator adds behaviour to a compatible interface without changing it. Adapter makes an incompatible interface compatible. In the NLI architecture, all three appear, and conflating them produces structural errors: the `DataProductAccessAgent` is a Facade over AWS DataZone; a `GuardrailDecorator` wraps an agent output; an `LMSDataAdapter` converts LMS schema to canonical wellness schema. Different problems, different patterns.
+
+In agentic AI systems, the Adapter pattern appears at three distinct architectural layers. Each layer has a different client, a different adaptee, and a different translation concern. Together they establish Adapter as a cross-cutting pattern that appears at every level of the agentic stack.
+
+The four GoF roles translate consistently across all three layers:
+
+| GoF Role | Tool Layer | Model Layer | Data Layer |
+|---|---|---|---|
+| Target | `ToolInput / ToolOutput` | `LanguageModel` | `DataProduct` schema |
+| Adaptee | Weather API, database, code sandbox | OpenAI, Claude, local model | LMS, wearable device, health record system |
+| Adapter | `WeatherAPIAdapter`, `DatabaseAdapter` | `ClaudeAdapter`, `OpenAIAdapter` | `LMSDataAdapter`, `WearableDataAdapter` |
+| Client | `ToolUseStrategy`, `Command` | `AgentRunner`, all strategies | ETL pipeline, ingestion agents |
+
+: GoF roles translated across the three agentic adapter layers {#tbl-adapter-roles}
+
+### Tool Layer — Canonical Tool Interface
+
+Every strategy that invokes tools — `ToolUseStrategy` primarily, but also `ReActStrategy` and `PlanningStrategy` — calls a canonical `tool.execute(input: ToolInput) → ToolOutput` interface. The `ToolSchemaCatalog` singleton defines this interface. But real tools do not conform to it natively. A weather API expects a city name and returns a nested JSON object. A database query tool expects SQL and returns tabular rows. A code execution sandbox expects a string and returns stdout plus stderr.
+
+A `WeatherAPIAdapter`, `DatabaseQueryAdapter`, and `CodeExecutionAdapter` each wrap their respective tools behind the canonical interface. The strategy code never changes when a new tool is added — a new adapter is written and registered in the catalog. This decoupling is what makes the tool layer extensible without touching agent logic.
+
+The Command pattern connection is particularly important here. Tool invocation Commands call through adapters. Because the Command records the canonical interface call — not the native API call — it remains replayable even when the underlying tool evolves. Schema drift is contained at the adapter boundary rather than propagating into the Command store.
+
+### Model Layer — Canonical Language Model Interface
+
+An `AgentRunner` executing any reasoning strategy needs to call an LLM. OpenAI, Anthropic, Google, and local models all have different API signatures, authentication mechanisms, streaming protocols, token counting methods, and error response formats. A research system like NLI needs to swap models frequently — for cost, privacy, regulatory compliance, or capability reasons.
+
+A canonical `LanguageModel` interface — `complete(prompt: Prompt) → Response` — abstracts over all of these. A `ClaudeAdapter`, `OpenAIAdapter`, and `LocalModelAdapter` each implement it, handling provider-specific details internally. The `AgentRunner` and all strategies call only the canonical interface. Swapping the model requires only swapping the adapter — no agent code changes.
+
+### Data Layer — Canonical Data Product Schema
+
+The Global Data Consortium architecture ingests data from four custodial domains — schools and youth services, health services, sport clubs and wearables, personal devices — each with its own schema, format, and access protocol. An LMS produces grade records and attendance logs. A wearable device produces sensor streams. A health record system uses clinical coding standards. None of these conform to the canonical data product schemas — `EngagementTrajectoryDataProduct`, `HRVRecoveryDataProduct`, `SleepPatternDataProduct` — that the agentic subsystem and its agents consume.
+
+An `LMSDataAdapter`, `WearableDataAdapter`, and `HealthRecordAdapter` each convert their source domain's output into the canonical schema. The Semantic Layer in the GDC architecture — MortarCAPS and Health Semantics — defines the target interfaces. The adapters are what get data there. Agents query only canonical schemas; they have no knowledge of which custodial domain produced the data or in what format it originally arrived.
+
+The responsible AI implication is direct: canonical data product schemas are governed assets with defined ownership, versioning, and quality guarantees. Adapters are the enforcement mechanism — they ensure that only schema-conformant, validated data enters the governed data fabric.
+
+## The Stochasticity Delta {#sec-adapter-delta}
+
+Each adapter layer has a distinct stochasticity delta property.
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**Tool Layer — schema drift.** Source APIs change their schemas. A `WeatherAPIAdapter` calibrated against one API version may silently misinterpret responses from the next. Classical Adapters assume stable source interfaces. Agentic tool adapters need schema versioning, drift detection, and graceful degradation when the native interface changes unexpectedly. This is a deterministic failure mode — the adapter will consistently misinterpret until corrected — but it is silent, making it more dangerous than a hard failure.
+
+**Model Layer — distributional non-equivalence.** Two adapters satisfying the same `LanguageModel` interface are not interchangeable in the way that two tool adapters are. A `ClaudeAdapter` and an `OpenAIAdapter` both return a `Response` object — but the distributions of those responses differ in ways that affect downstream reasoning. The canonical interface hides the provider; it cannot hide the distributional differences between providers. The eval layer must therefore be provider-aware: a `StrategySelectionJudge` that was calibrated against Claude outputs may not be well-calibrated for GPT-4o outputs. Model swapping requires eval recalibration, not just adapter swapping.
+
+**Data Layer — semantic interpretation risk.** Converting LMS grades into an `EngagementTrajectoryDataProduct` is not a mechanical field mapping. It requires semantic interpretation: what does a grade of 74% mean in context of attendance, submission timing, and prior performance trajectory? If this interpretation is LLM-driven — and in sophisticated systems it will be — the data adapter is itself stochastic. The same source record, adapted twice, may produce different canonical representations. This introduces systematic bias risk: if the LLM adapter systematically misinterprets a certain type of source data, that bias propagates into every downstream data product derived from it. Calibration against known-good transformations — EDP4 in the eval data product framework — is the mitigation.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-adapter-minimal) shows the three adapter layers side by side, the canonical target interfaces, representative adaptees, and the stochasticity delta properties for each layer.
+
+![Adapter pattern — structural diagram. Three adapter layers (Tool, Model, Data) shown side by side with canonical interfaces, adaptees, and stochasticity delta per layer.](figures/adapter-minimal.svg){#fig-adapter-minimal}
+
+## Annotated Runtime Diagram
+
+The working conceptual diagram (@fig-adapter-conceptual) annotates each adapter type with its runtime properties: schema versioning requirements, distributional non-equivalence, semantic interpretation risk, and the responsible AI implications of each layer.
+
+![Adapter pattern — annotated runtime diagram. Schema drift at the Tool Layer, distributional non-equivalence at the Model Layer, and semantic interpretation risk at the Data Layer annotated throughout.](figures/adapter-conceptual.svg){#fig-adapter-conceptual}
+
+## Canonical Example — NLI on the Global Data Consortium
+
+The NLI system provides a concrete instantiation of all three adapter layers operating simultaneously within a single architecture.
+
+At the **tool layer**, the agentic subsystem's agents invoke external tools through canonical adapters registered in the `ToolSchemaCatalog` singleton. The `PersonalDataQAAgent` calls a `DataZoneQueryAdapter` that translates canonical tool calls into AWS DataZone API requests. The `PatternWatcherAgent` calls a `TimeSeriesAdapter` that normalises sensor data queries across device types. The `ContextLinkingAgent` calls a `GraphQueryAdapter` over the knowledge store. None of these agents hold direct API dependencies — they call only `tool.execute(input) → output`.
+
+At the **model layer**, the `AgentRunner` calls through a `LanguageModel` adapter. In the NLI research context, the active adapter may be `ClaudeAdapter` for production reasoning tasks, `LocalModelAdapter` for privacy-sensitive health data processing, or a lighter `OpenAIAdapter` for lower-stakes summarisation tasks. The strategy code is identical in all cases. When the research team evaluates a new model, they write a new adapter and run the eval suite — the eval results tell them whether the distributional shift requires judge recalibration before the new model goes into production.
+
+At the **data layer**, the `nli_etl` module contains an adapter for each custodial domain in the GDC architecture. The `LMSDataAdapter` converts Moodle and Canvas exports into `EngagementTrajectoryDataProduct` schema using a combination of rule-based field mapping and LLM-driven semantic interpretation for fields that require contextual understanding. The `WearableDataAdapter` normalises sensor streams from Garmin, Apple Watch, and Fitbit into `HRVRecoveryDataProduct` and `SleepPatternDataProduct` canonical schemas. The `HealthRecordAdapter` maps clinical coding systems into the Health Semantics target schema. Each adapter is versioned and registered against the schema version it was calibrated for — schema drift triggers an alert rather than a silent misinterpretation.
+
+## Composability {#sec-adapter-composability}
+
+**Facade** is the pattern most commonly conflated with Adapter. In NLI, the `DataProductAccessAgent` is a Facade — it hides the complexity of the DataZone system behind a clean interface. The `LMSDataAdapter` is an Adapter — it makes the LMS schema compatible with the canonical data product schema. Both appear in the data layer but for different reasons. Keeping the distinction explicit prevents architectural confusion as the system grows.
+
+**Singleton** provides the canonical interface definitions that Adapters must conform to. The `ToolSchemaCatalog` singleton defines `ToolInput` and `ToolOutput` — the target interfaces for all tool adapters. If the singleton schema changes, all adapters for that interface must be updated. The Singleton is the source of truth; the Adapter is the enforcement mechanism.
+
+**Command** calls through Tool Layer Adapters. Because Commands record canonical interface calls rather than native API calls, they remain replayable even when the underlying tool evolves. The Adapter boundary contains schema drift; the Command store stays clean.
+
+**Builder** assembles the appropriate Data Layer Adapters during `configureIngestion()`. The `WearablePipelineBuilder` registers the `WearableDataAdapter`; the `LMSPipelineBuilder` additionally registers the `LMSDataAdapter`. The builder determines which adapters are in play; the adapters handle the translation.
+
+**Strategy** calls through both Tool Layer and Model Layer Adapters. All five reasoning strategies call tools through canonical tool adapters. The `AgentRunner` executing any strategy calls the LLM through a canonical model adapter. Strategy code is entirely decoupled from both tool and model implementations.
+
+**Decorator** can be stacked with Adapters. A `LoggingDecorator` wrapping a `ClaudeAdapter` adds observability to every model call without touching the adapter logic. A `RetryDecorator` wrapping a `DatabaseAdapter` adds resilience without modifying the adapter. Adapters make interfaces compatible; Decorators add behaviour to compatible interfaces.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Facade</strong> — adjacent pattern, distinct concern</span>
+<span class="ctag"><strong>Singleton</strong> — canonical schema definitions</span>
+<span class="ctag"><strong>Command</strong> — replayability through stable interfaces</span>
+<span class="ctag"><strong>Builder</strong> — adapter assembly at construction</span>
+<span class="ctag"><strong>Strategy</strong> — tool and model decoupling</span>
+<span class="ctag"><strong>Decorator</strong> — stackable with adapters</span>
+:::
