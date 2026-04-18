@@ -28,9 +28,9 @@ book:
     - part: "Structural Patterns"
       chapters:
         - patterns/structural/adapter.qmd
+        - patterns/structural/composite.qmd
         - patterns/structural/decorator.qmd
         - patterns/structural/facade.qmd
-        - patterns/structural/composite.qmd
     - part: "Behavioural Patterns"
       chapters:
         - patterns/behavioural/strategy.qmd
