@@ -71,7 +71,7 @@ Each adapter layer has a distinct stochasticity delta property.
 
 The minimal diagram (@fig-adapter-minimal) shows the three adapter layers side by side, the canonical target interfaces, representative adaptees, and the stochasticity delta properties for each layer.
 
-![Adapter pattern — structural diagram. Three adapter layers (Tool, Model, Data) shown side by side with canonical interfaces, adaptees, and stochasticity delta per layer.](figures/adapter-minimal.svg){#fig-adapter-minimal}
+![Adapter pattern — structural diagram. Three adapter layers (Tool, Model, Data) shown side by side with canonical interfaces, adaptees, and stochasticity delta per layer.](../../figures/adapter-minimal.svg){#fig-adapter-minimal}
 
 
 ## Canonical Example — NLI on the Global Data Consortium
