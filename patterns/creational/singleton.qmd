@@ -50,11 +50,6 @@ The minimal diagram (@fig-singleton-minimal) shows both singleton classes, their
 
 ![Singleton pattern — structural diagram. Both singleton classes, the global access point, representative client agents, and the stochasticity delta.](figures/singleton-minimal.svg){#fig-singleton-minimal}
 
-## Annotated Runtime Diagram
-
-The working conceptual diagram (@fig-singleton-conceptual) annotates each singleton with its update frequency, access pattern, failure mode, versioning requirement, and responsible AI implications.
-
-![Singleton pattern — annotated runtime diagram. Update frequency, versioned access pattern, safety-critical failure mode for SafetyConstraintStore, and concurrent write coordination for active data products annotated throughout.](figures/singleton-conceptual.svg){#fig-singleton-conceptual}
 
 ## Canonical Example — Wellness Monitoring Pipeline
 

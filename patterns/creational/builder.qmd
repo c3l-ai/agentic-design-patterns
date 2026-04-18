@@ -53,11 +53,6 @@ The minimal diagram (@fig-builder-minimal) shows the four GoF roles translated t
 
 ![Builder pattern — structural diagram. The Director, abstract builder interface, three concrete builders, their pipeline products, and the stochasticity delta.](figures/builder-minimal.svg){#fig-builder-minimal}
 
-## Annotated Runtime Diagram
-
-The working conceptual diagram (@fig-builder-conceptual) annotates each node with its runtime properties: construction sequence enforcement, conditional fallback logic, synchrony classification of assembled agents, and the eval integration guarantee.
-
-![Builder pattern — annotated runtime diagram. Construction sequence enforcement, conditional fallback logic, synchrony mismatch, and mandatory eval integration step annotated throughout.](figures/builder-conceptual.svg){#fig-builder-conceptual}
 
 ## Canonical Example — Athletic Performance and Learning Analytics
 

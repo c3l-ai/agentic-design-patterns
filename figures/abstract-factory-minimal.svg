@@ -1,0 +1,118 @@
+<svg width="720" height="560" viewBox="0 0 720 560" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Abstract interface -->
+  <rect x="190" y="10" width="340" height="54" rx="3" fill="#fafafa" stroke="#bbb" stroke-width="1"/>
+  <text x="360" y="28" text-anchor="middle" font-size="10" fill="#666">«interface»</text>
+  <text x="360" y="44" text-anchor="middle" font-size="12" font-weight="500" fill="#111">AgentEvalFactory</text>
+  <line x1="190" y1="49" x2="530" y2="49" stroke="#e0e0e0" stroke-width="0.75"/>
+  <text x="360" y="57" text-anchor="middle" font-size="8.5" fill="#888">getOutputJudge()  ·  getToolJudge()  ·  getSafetyJudge()</text>
+
+  <!-- branch lines -->
+  <line x1="360" y1="64" x2="360" y2="80" stroke="#ccc" stroke-width="1"/>
+  <line x1="100" y1="80" x2="620" y2="80" stroke="#ccc" stroke-width="1"/>
+  <line x1="100" y1="80" x2="100" y2="98" stroke="#ccc" stroke-width="1"/>
+  <line x1="360" y1="80" x2="360" y2="98" stroke="#ccc" stroke-width="1"/>
+  <line x1="620" y1="80" x2="620" y2="98" stroke="#ccc" stroke-width="1"/>
+
+  <!-- Factory A -->
+  <rect x="18" y="98" width="165" height="44" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="100" y="116" text-anchor="middle" font-size="10" font-weight="500" fill="#1d4ed8">TaskAgent</text>
+  <text x="100" y="130" text-anchor="middle" font-size="10" font-weight="500" fill="#1d4ed8">EvalFactory</text>
+  <text x="100" y="138" text-anchor="middle" font-size="8" fill="#6b7280">execution-focused</text>
+
+  <!-- Factory B -->
+  <rect x="278" y="98" width="165" height="44" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="360" y="116" text-anchor="middle" font-size="10" font-weight="500" fill="#6d28d9">Orchestrator</text>
+  <text x="360" y="130" text-anchor="middle" font-size="10" font-weight="500" fill="#6d28d9">EvalFactory</text>
+  <text x="360" y="138" text-anchor="middle" font-size="8" fill="#6b7280">coordination-focused</text>
+
+  <!-- Factory C -->
+  <rect x="538" y="98" width="165" height="44" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="620" y="116" text-anchor="middle" font-size="10" font-weight="500" fill="#166534">Reflection</text>
+  <text x="620" y="130" text-anchor="middle" font-size="10" font-weight="500" fill="#166534">EvalFactory</text>
+  <text x="620" y="138" text-anchor="middle" font-size="8" fill="#6b7280">quality-focused</text>
+
+  <!-- product families label -->
+  <text x="360" y="168" text-anchor="middle" font-size="8" fill="#ccc" letter-spacing="1.5">PRODUCT FAMILIES</text>
+  <line x1="30" y1="171" x2="160" y2="171" stroke="#eee" stroke-width="0.5"/>
+  <line x1="280" y1="171" x2="440" y2="171" stroke="#eee" stroke-width="0.5"/>
+  <line x1="558" y1="171" x2="700" y2="171" stroke="#eee" stroke-width="0.5"/>
+
+  <!-- Factory A product branches -->
+  <line x1="100" y1="142" x2="100" y2="175" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="40" y1="175" x2="168" y2="175" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="40" y1="175" x2="40" y2="189" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="100" y1="175" x2="100" y2="189" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="168" y1="175" x2="168" y2="189" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <rect x="10" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="42" y="203" text-anchor="middle" font-size="8" fill="#1d4ed8">Output</text>
+  <text x="42" y="215" text-anchor="middle" font-size="8" fill="#1d4ed8">Judge</text>
+  <rect x="68" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="100" y="203" text-anchor="middle" font-size="8" fill="#1d4ed8">ToolUse</text>
+  <text x="100" y="215" text-anchor="middle" font-size="8" fill="#1d4ed8">Judge</text>
+  <rect x="136" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="168" y="203" text-anchor="middle" font-size="8" fill="#1d4ed8">Safety</text>
+  <text x="168" y="215" text-anchor="middle" font-size="8" fill="#1d4ed8">Judge</text>
+
+  <!-- Factory B product branches -->
+  <line x1="360" y1="142" x2="360" y2="175" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="293" y1="175" x2="427" y2="175" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="293" y1="175" x2="293" y2="189" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="175" x2="360" y2="189" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="427" y1="175" x2="427" y2="189" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <rect x="260" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="292" y="203" text-anchor="middle" font-size="8" fill="#6d28d9">Routing</text>
+  <text x="292" y="215" text-anchor="middle" font-size="8" fill="#6d28d9">Judge</text>
+  <rect x="328" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="360" y="203" text-anchor="middle" font-size="8" fill="#6d28d9">Handoff</text>
+  <text x="360" y="215" text-anchor="middle" font-size="8" fill="#6d28d9">Judge</text>
+  <rect x="394" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="426" y="203" text-anchor="middle" font-size="8" fill="#6d28d9">Coherence</text>
+  <text x="426" y="215" text-anchor="middle" font-size="8" fill="#6d28d9">Judge</text>
+
+  <!-- Factory C product branches -->
+  <line x1="620" y1="142" x2="620" y2="175" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="554" y1="175" x2="688" y2="175" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="554" y1="175" x2="554" y2="189" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="620" y1="175" x2="620" y2="189" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="688" y1="175" x2="688" y2="189" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <rect x="522" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="554" y="203" text-anchor="middle" font-size="8" fill="#166534">Critique</text>
+  <text x="554" y="215" text-anchor="middle" font-size="8" fill="#166534">Judge</text>
+  <rect x="588" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="620" y="203" text-anchor="middle" font-size="8" fill="#166534">Convergence</text>
+  <text x="620" y="215" text-anchor="middle" font-size="8" fill="#166534">Judge</text>
+  <rect x="654" y="189" width="65" height="34" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="686" y="203" text-anchor="middle" font-size="8" fill="#166534">Quality</text>
+  <text x="686" y="215" text-anchor="middle" font-size="8" fill="#166534">Judge</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="360" y1="223" x2="360" y2="244" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="120" y="244" width="480" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="262" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — no GoF equivalent</text>
+  <line x1="140" y1="268" x2="580" y2="268" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="283" text-anchor="middle" font-size="8.5" fill="#78350f">Products are LLM judges: non-deterministic · require meta-evaluation layer</text>
+  <text x="360" y="297" text-anchor="middle" font-size="8.5" fill="#78350f">Depend on agent execution trace · HumanJudge implements same interface</text>
+
+  <!-- Client -->
+  <line x1="360" y1="316" x2="360" y2="336" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="220" y="336" width="280" height="44" rx="3" fill="#fafafa" stroke="#bbb" stroke-width="1"/>
+  <text x="360" y="354" text-anchor="middle" font-size="11" font-weight="500" fill="#111">Client Agent</text>
+  <text x="360" y="368" text-anchor="middle" font-size="8.5" fill="#777">calls factory.getOutputJudge()</text>
+  <text x="360" y="379" text-anchor="middle" font-size="8" fill="#aaa">unaware of concrete factory or judge type</text>
+
+  <!-- Human fallback -->
+  <line x1="360" y1="380" x2="360" y2="400" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="200" y="400" width="320" height="44" rx="3" fill="#fff7ed" stroke="#fdba74" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="418" text-anchor="middle" font-size="10" font-weight="500" fill="#9a3412">HumanJudge — fallback product</text>
+  <text x="360" y="432" text-anchor="middle" font-size="8.5" fill="#78350f">Same Judge interface · triggered on low-confidence verdict</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="444" x2="360" y2="460" stroke="#eee" stroke-width="0.75"/>
+  <rect x="130" y="460" width="460" height="36" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="476" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Decorator · Memento · Observer · Proxy · Command</text>
+
+</svg>

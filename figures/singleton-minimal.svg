@@ -1,0 +1,116 @@
+<svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Class A header -->
+  <rect x="10" y="10" width="330" height="28" rx="3" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="175" y="28" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0369a1">Class A — Configuration Singletons</text>
+
+  <!-- Class B header -->
+  <rect x="380" y="10" width="330" height="28" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="545" y="28" text-anchor="middle" font-size="9.5" font-weight="500" fill="#166534">Class B — Active Data Product Singletons</text>
+
+  <!-- Config singletons -->
+  <rect x="10" y="52" width="96" height="72" rx="3" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="58" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#0369a1">EvalThreshold</text>
+  <text x="58" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#0369a1">Registry</text>
+  <line x1="20" y1="86" x2="96" y2="86" stroke="#bae6fd" stroke-width="0.5"/>
+  <text x="58" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="58" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">getThreshold(k)</text>
+  <text x="58" y="117" text-anchor="middle" font-size="7" fill="#0ea5e9">versioned</text>
+
+  <rect x="122" y="52" width="96" height="72" rx="3" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="170" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#0369a1">ToolSchema</text>
+  <text x="170" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#0369a1">Catalog</text>
+  <line x1="132" y1="86" x2="208" y2="86" stroke="#bae6fd" stroke-width="0.5"/>
+  <text x="170" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="170" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">getSchema(tool)</text>
+  <text x="170" y="117" text-anchor="middle" font-size="7" fill="#0ea5e9">versioned</text>
+
+  <rect x="234" y="52" width="96" height="72" rx="3" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="282" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#dc2626">SafetyConstraint</text>
+  <text x="282" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#dc2626">Store</text>
+  <line x1="244" y1="86" x2="320" y2="86" stroke="#fca5a5" stroke-width="0.5"/>
+  <text x="282" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="282" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">check(action)</text>
+  <text x="282" y="117" text-anchor="middle" font-size="7" fill="#dc2626">safety-critical</text>
+
+  <!-- Active data product singletons -->
+  <rect x="380" y="52" width="96" height="72" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="428" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">Learner</text>
+  <text x="428" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">WellnessProfile</text>
+  <line x1="390" y1="86" x2="466" y2="86" stroke="#bbf7d0" stroke-width="0.5"/>
+  <text x="428" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="428" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">write(obs) / read()</text>
+  <text x="428" y="117" text-anchor="middle" font-size="7" fill="#16a34a">governed asset</text>
+
+  <rect x="492" y="52" width="96" height="72" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="540" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">Shared</text>
+  <text x="540" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">SessionState</text>
+  <line x1="502" y1="86" x2="578" y2="86" stroke="#bbf7d0" stroke-width="0.5"/>
+  <text x="540" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="540" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">get() / update()</text>
+  <text x="540" y="117" text-anchor="middle" font-size="7" fill="#16a34a">cross-agent</text>
+
+  <rect x="604" y="52" width="96" height="72" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="652" y="70" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">Longitudinal</text>
+  <text x="652" y="82" text-anchor="middle" font-size="8.5" font-weight="500" fill="#166534">LearnerModel</text>
+  <line x1="614" y1="86" x2="690" y2="86" stroke="#bbf7d0" stroke-width="0.5"/>
+  <text x="652" y="97" text-anchor="middle" font-size="7.5" fill="#6b7280">getInstance()</text>
+  <text x="652" y="108" text-anchor="middle" font-size="7.5" fill="#6b7280">append(event)</text>
+  <text x="652" y="117" text-anchor="middle" font-size="7" fill="#16a34a">versioned</text>
+
+  <!-- Global access -->
+  <text x="360" y="148" text-anchor="middle" font-size="8" fill="#ccc" letter-spacing="1.5">GLOBAL ACCESS POINT — getInstance()</text>
+  <line x1="10" y1="151" x2="168" y2="151" stroke="#eee" stroke-width="0.5"/>
+  <line x1="552" y1="151" x2="710" y2="151" stroke="#eee" stroke-width="0.5"/>
+
+  <!-- lines to access point -->
+  <line x1="58" y1="124" x2="58" y2="155" stroke="#7dd3fc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="170" y1="124" x2="170" y2="155" stroke="#7dd3fc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="282" y1="124" x2="282" y2="155" stroke="#fca5a5" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="428" y1="124" x2="428" y2="155" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="540" y1="124" x2="540" y2="155" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="652" y1="124" x2="652" y2="155" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="58" y1="155" x2="652" y2="155" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="360" y1="155" x2="360" y2="170" stroke="#ddd" stroke-width="0.75"/>
+
+  <!-- Client branches -->
+  <line x1="100" y1="170" x2="360" y2="170" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="360" y1="170" x2="620" y2="170" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="100" y1="170" x2="100" y2="185" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="240" y1="170" x2="240" y2="185" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="480" y1="170" x2="480" y2="185" stroke="#ddd" stroke-width="0.75"/>
+  <line x1="620" y1="170" x2="620" y2="185" stroke="#ddd" stroke-width="0.75"/>
+
+  <!-- Clients -->
+  <rect x="42" y="185" width="116" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="100" y="203" text-anchor="middle" font-size="8.5" fill="#6b7280">TaskAgent</text>
+
+  <rect x="182" y="185" width="116" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="240" y="203" text-anchor="middle" font-size="8.5" fill="#6b7280">GuardrailDecorator</text>
+
+  <rect x="422" y="185" width="116" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="480" y="203" text-anchor="middle" font-size="8.5" fill="#6b7280">WearableAgent</text>
+
+  <rect x="562" y="185" width="116" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="620" y="203" text-anchor="middle" font-size="8.5" fill="#6b7280">ReflectionAgent</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="360" y1="213" x2="360" y2="233" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="60" y="233" width="600" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="251" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — two agentic extensions</text>
+  <line x1="80" y1="257" x2="640" y2="257" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="271" text-anchor="middle" font-size="8.5" fill="#78350f">1. Distributed systems: GoF assumes single process — multi-agent requires distributed locking</text>
+  <text x="360" y="285" text-anchor="middle" font-size="8.5" fill="#78350f">2. Versioning: agents acquire version at task start — hot-updates require coordination</text>
+  <text x="360" y="299" text-anchor="middle" font-size="8" fill="#b45309">SafetyConstraintStore unreachable → halt, not fallback</text>
+
+  <!-- Scope note -->
+  <line x1="360" y1="305" x2="360" y2="321" stroke="#eee" stroke-width="0.75"/>
+  <rect x="100" y="321" width="520" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75" stroke-dasharray="4,3"/>
+  <text x="360" y="339" text-anchor="middle" font-size="8" fill="#94a3b8" font-style="italic">Pattern Weight: Singleton names a safety requirement — not a novel architectural solution</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="349" x2="360" y2="365" stroke="#eee" stroke-width="0.75"/>
+  <rect x="80" y="365" width="560" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="383" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Abstract Factory · Builder · Decorator · Command · Memento · Observer</text>
+
+</svg>

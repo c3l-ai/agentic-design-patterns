@@ -56,11 +56,6 @@ The minimal diagram (@fig-abstract-factory-minimal) shows the pattern structure:
 
 ![Abstract Factory pattern — structural diagram. The abstract interface, three concrete factories, their product families, the stochasticity delta, client agent, and human fallback. No runtime annotation.](figures/abstract-factory-minimal.svg){#fig-abstract-factory-minimal}
 
-## Annotated Runtime Diagram
-
-The working conceptual diagram (@fig-abstract-factory-conceptual) annotates each node with its runtime properties: stochasticity, failure modes, the meta-evaluation layer GoF didn't anticipate, and human-in-the-loop reframed as a factory product.
-
-![Abstract Factory pattern — annotated runtime diagram. Runtime behaviour annotated throughout including the meta-evaluation layer and human fallback as factory product.](figures/abstract-factory-conceptual.svg){#fig-abstract-factory-conceptual}
 
 ## Canonical Example
 

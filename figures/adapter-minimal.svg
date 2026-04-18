@@ -1,0 +1,116 @@
+<svg width="720" height="520" viewBox="0 0 720 520" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Three layer headers -->
+  <rect x="10" y="10" width="216" height="24" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="118" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">Tool Layer</text>
+
+  <rect x="252" y="10" width="216" height="24" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="360" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#6d28d9">Model Layer</text>
+
+  <rect x="494" y="10" width="216" height="24" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="602" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">Data Layer</text>
+
+  <!-- Target interfaces -->
+  <rect x="10" y="48" width="216" height="40" rx="3" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="118" y="63" text-anchor="middle" font-size="8.5" fill="#6b7280">Target Interface</text>
+  <text x="118" y="79" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">ToolInput / ToolOutput</text>
+
+  <rect x="252" y="48" width="216" height="40" rx="3" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="360" y="63" text-anchor="middle" font-size="8.5" fill="#6b7280">Target Interface</text>
+  <text x="360" y="79" text-anchor="middle" font-size="9" font-weight="500" fill="#6d28d9">LanguageModel.complete()</text>
+
+  <rect x="494" y="48" width="216" height="40" rx="3" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="602" y="63" text-anchor="middle" font-size="8.5" fill="#6b7280">Target Interface</text>
+  <text x="602" y="79" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">DataProduct Schema</text>
+
+  <!-- Adapter boxes -->
+  <line x1="118" y1="88" x2="118" y2="104" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="88" x2="360" y2="104" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="602" y1="88" x2="602" y2="104" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <rect x="10" y="104" width="216" height="56" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="118" y="122" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1d4ed8">Tool Adapters</text>
+  <line x1="20" y1="127" x2="216" y2="127" stroke="#dbeafe" stroke-width="0.5"/>
+  <text x="118" y="139" text-anchor="middle" font-size="8" fill="#1d4ed8">WeatherAPIAdapter</text>
+  <text x="118" y="150" text-anchor="middle" font-size="8" fill="#1d4ed8">DatabaseAdapter · CodeAdapter</text>
+
+  <rect x="252" y="104" width="216" height="56" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="360" y="122" text-anchor="middle" font-size="9.5" font-weight="500" fill="#6d28d9">Model Adapters</text>
+  <line x1="262" y1="127" x2="458" y2="127" stroke="#ede9fe" stroke-width="0.5"/>
+  <text x="360" y="139" text-anchor="middle" font-size="8" fill="#6d28d9">ClaudeAdapter</text>
+  <text x="360" y="150" text-anchor="middle" font-size="8" fill="#6d28d9">OpenAIAdapter · LocalModelAdapter</text>
+
+  <rect x="494" y="104" width="216" height="56" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="602" y="122" text-anchor="middle" font-size="9.5" font-weight="500" fill="#166534">Data Adapters</text>
+  <line x1="504" y1="127" x2="700" y2="127" stroke="#dcfce7" stroke-width="0.5"/>
+  <text x="602" y="139" text-anchor="middle" font-size="8" fill="#166534">LMSDataAdapter</text>
+  <text x="602" y="150" text-anchor="middle" font-size="8" fill="#166534">WearableAdapter · HealthRecordAdapter</text>
+
+  <!-- Adaptee boxes -->
+  <line x1="118" y1="160" x2="118" y2="176" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="160" x2="360" y2="176" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="602" y1="160" x2="602" y2="176" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <rect x="10" y="176" width="216" height="44" rx="3" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="118" y="194" text-anchor="middle" font-size="8.5" fill="#6b7280">Adaptee</text>
+  <text x="118" y="208" text-anchor="middle" font-size="8.5" fill="#555">Weather API · DB · Sandbox</text>
+
+  <rect x="252" y="176" width="216" height="44" rx="3" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="360" y="194" text-anchor="middle" font-size="8.5" fill="#6b7280">Adaptee</text>
+  <text x="360" y="208" text-anchor="middle" font-size="8.5" fill="#555">OpenAI API · Anthropic API · Ollama</text>
+
+  <rect x="494" y="176" width="216" height="44" rx="3" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="602" y="194" text-anchor="middle" font-size="8.5" fill="#6b7280">Adaptee</text>
+  <text x="602" y="208" text-anchor="middle" font-size="8.5" fill="#555">LMS · Wearable Device · EHR System</text>
+
+  <!-- Client boxes (below) -->
+  <line x1="118" y1="220" x2="118" y2="236" stroke="#bbb" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="220" x2="360" y2="236" stroke="#bbb" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="602" y1="220" x2="602" y2="236" stroke="#bbb" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <text x="118" y="232" text-anchor="middle" font-size="7.5" fill="#aaa">called by</text>
+  <text x="360" y="232" text-anchor="middle" font-size="7.5" fill="#aaa">called by</text>
+  <text x="602" y="232" text-anchor="middle" font-size="7.5" fill="#aaa">called by</text>
+
+  <rect x="10" y="236" width="216" height="28" rx="2" fill="#fafafa" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="118" y="254" text-anchor="middle" font-size="8.5" fill="#6b7280">ToolUseStrategy · Command</text>
+
+  <rect x="252" y="236" width="216" height="28" rx="2" fill="#fafafa" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="254" text-anchor="middle" font-size="8.5" fill="#6b7280">AgentRunner · all strategies</text>
+
+  <rect x="494" y="236" width="216" height="28" rx="2" fill="#fafafa" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="602" y="254" text-anchor="middle" font-size="8.5" fill="#6b7280">ETL pipeline · ingestion agents</text>
+
+  <!-- Stochasticity delta per layer -->
+  <rect x="10" y="278" width="216" height="64" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="118" y="294" text-anchor="middle" font-size="8.5" font-weight="500" fill="#92400e">⚠ Schema Drift</text>
+  <line x1="20" y1="299" x2="216" y2="299" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="118" y="312" text-anchor="middle" font-size="8" fill="#78350f">Source APIs change.</text>
+  <text x="118" y="324" text-anchor="middle" font-size="8" fill="#78350f">Silent misinterpretation.</text>
+  <text x="118" y="336" text-anchor="middle" font-size="8" fill="#78350f">Versioning required.</text>
+
+  <rect x="252" y="278" width="216" height="64" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="294" text-anchor="middle" font-size="8.5" font-weight="500" fill="#92400e">⚠ Distributional Gap</text>
+  <line x1="262" y1="299" x2="458" y2="299" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="312" text-anchor="middle" font-size="8" fill="#78350f">Interface hides provider.</text>
+  <text x="360" y="324" text-anchor="middle" font-size="8" fill="#78350f">Outputs not equivalent.</text>
+  <text x="360" y="336" text-anchor="middle" font-size="8" fill="#78350f">Eval recalibration needed.</text>
+
+  <rect x="494" y="278" width="216" height="64" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="602" y="294" text-anchor="middle" font-size="8.5" font-weight="500" fill="#92400e">⚠ Semantic Risk</text>
+  <line x1="504" y1="299" x2="700" y2="299" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="602" y="312" text-anchor="middle" font-size="8" fill="#78350f">LLM-driven mapping.</text>
+  <text x="602" y="324" text-anchor="middle" font-size="8" fill="#78350f">Stochastic interpretation.</text>
+  <text x="602" y="336" text-anchor="middle" font-size="8" fill="#78350f">Calibrate against EDP4.</text>
+
+  <!-- Facade distinction note -->
+  <line x1="360" y1="342" x2="360" y2="358" stroke="#eee" stroke-width="0.75"/>
+  <rect x="80" y="358" width="560" height="32" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="0.75"/>
+  <text x="360" y="372" text-anchor="middle" font-size="8.5" fill="#4338ca">Facade vs Adapter: Facade simplifies a complex subsystem.</text>
+  <text x="360" y="385" text-anchor="middle" font-size="8.5" fill="#4338ca">Adapter makes an incompatible interface compatible. Both appear in NLI.</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="390" x2="360" y2="406" stroke="#eee" stroke-width="0.75"/>
+  <rect x="80" y="406" width="560" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="424" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Facade · Singleton · Command · Builder · Strategy · Decorator</text>
+
+</svg>

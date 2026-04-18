@@ -73,11 +73,6 @@ The minimal diagram (@fig-adapter-minimal) shows the three adapter layers side b
 
 ![Adapter pattern — structural diagram. Three adapter layers (Tool, Model, Data) shown side by side with canonical interfaces, adaptees, and stochasticity delta per layer.](figures/adapter-minimal.svg){#fig-adapter-minimal}
 
-## Annotated Runtime Diagram
-
-The working conceptual diagram (@fig-adapter-conceptual) annotates each adapter type with its runtime properties: schema versioning requirements, distributional non-equivalence, semantic interpretation risk, and the responsible AI implications of each layer.
-
-![Adapter pattern — annotated runtime diagram. Schema drift at the Tool Layer, distributional non-equivalence at the Model Layer, and semantic interpretation risk at the Data Layer annotated throughout.](figures/adapter-conceptual.svg){#fig-adapter-conceptual}
 
 ## Canonical Example — NLI on the Global Data Consortium
 

@@ -70,11 +70,6 @@ The minimal diagram (@fig-strategy-minimal) shows the AgentRunner as Context, th
 
 ![Strategy pattern — structural diagram. The AgentRunner as Context, abstract ReasoningStrategy interface, five concrete strategies drawn from the practitioner literature, runtime substitution, and the Factory Method tension.](figures/strategy-minimal.svg){#fig-strategy-minimal}
 
-## Annotated Runtime Diagram
-
-The working conceptual diagram (@fig-strategy-conceptual) annotates each node with its runtime properties: strategy selection as metacognitive appraisal, the Factory Method tension, context handoff on mid-execution substitution, and the dual eval layer.
-
-![Strategy pattern — annotated runtime diagram. Strategy selection as metacognitive appraisal, Factory Method tension, context handoff requirements, and eval layer covering both selection appropriateness and output quality.](figures/strategy-conceptual.svg){#fig-strategy-conceptual}
 
 ## Canonical Example — Learning Analytics Agent
 
