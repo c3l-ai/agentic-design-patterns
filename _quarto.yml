@@ -27,6 +27,7 @@ book:
         - patterns/creational/singleton.qmd
     - part: "Structural Patterns"
       chapters:
+        - patterns/structural/adapter.qmd
         - patterns/structural/decorator.qmd
         - patterns/structural/facade.qmd
         - patterns/structural/composite.qmd
