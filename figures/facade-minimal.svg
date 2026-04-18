@@ -1,0 +1,123 @@
+<svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Three facade headers -->
+  <rect x="10"  y="10" width="218" height="24" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="119" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">Data Fabric Facade</text>
+  <rect x="251" y="10" width="218" height="24" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="360" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#6d28d9">Inference Facade</text>
+  <rect x="492" y="10" width="218" height="24" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="601" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">Tool Registry Facade</text>
+
+  <!-- Client row -->
+  <rect x="10"  y="48" width="218" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="119" y="66" text-anchor="middle" font-size="8.5" fill="#6b7280">Any agent in nli_agents</text>
+  <rect x="251" y="48" width="218" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="360" y="66" text-anchor="middle" font-size="8.5" fill="#6b7280">AgentRunner · strategies</text>
+  <rect x="492" y="48" width="218" height="28" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="601" y="66" text-anchor="middle" font-size="8.5" fill="#6b7280">ToolUseStrategy · Command</text>
+
+  <!-- client to facade lines -->
+  <line x1="119" y1="76" x2="119" y2="92" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="76" x2="360" y2="92" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="601" y1="76" x2="601" y2="92" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <!-- Facade nodes -->
+  <rect x="10"  y="92" width="218" height="56" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.25"/>
+  <text x="119" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1d4ed8">DataProductAccessAgent</text>
+  <line x1="20" y1="114" x2="218" y2="114" stroke="#dbeafe" stroke-width="0.5"/>
+  <text x="119" y="125" text-anchor="middle" font-size="8" fill="#1d4ed8">getProduct(id, agentId)</text>
+  <text x="119" y="136" text-anchor="middle" font-size="8" fill="#1d4ed8">checkConsent(agentId, scope)</text>
+  <text x="119" y="144" text-anchor="middle" font-size="7.5" fill="#3b82f6">accountability boundary · escalates on ambiguity</text>
+
+  <rect x="251" y="92" width="218" height="56" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1.25"/>
+  <text x="360" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#6d28d9">InferenceFacade</text>
+  <line x1="261" y1="114" x2="459" y2="114" stroke="#ede9fe" stroke-width="0.5"/>
+  <text x="360" y="125" text-anchor="middle" font-size="8" fill="#6d28d9">complete(prompt, context)</text>
+  <text x="360" y="136" text-anchor="middle" font-size="8" fill="#6d28d9">streamResponse(prompt)</text>
+  <text x="360" y="144" text-anchor="middle" font-size="7.5" fill="#7c3aed">orchestrates · composes with Model Adapters</text>
+
+  <rect x="492" y="92" width="218" height="56" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1.25"/>
+  <text x="601" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#166534">ToolRegistryFacade</text>
+  <line x1="502" y1="114" x2="700" y2="114" stroke="#dcfce7" stroke-width="0.5"/>
+  <text x="601" y="125" text-anchor="middle" font-size="8" fill="#166534">execute(toolName, input)</text>
+  <text x="601" y="136" text-anchor="middle" font-size="8" fill="#166534">listAvailable(agentId)</text>
+  <text x="601" y="144" text-anchor="middle" font-size="7.5" fill="#16a34a">reads ToolSchemaCatalog singleton</text>
+
+  <!-- Subsystem label -->
+  <text x="360" y="172" text-anchor="middle" font-size="8" fill="#ccc" letter-spacing="1.5">SUBSYSTEM COMPONENTS — hidden, unaware of facade</text>
+  <line x1="10" y1="175" x2="128" y2="175" stroke="#eee" stroke-width="0.5"/>
+  <line x1="592" y1="175" x2="710" y2="175" stroke="#eee" stroke-width="0.5"/>
+
+  <!-- facade to subsystem branches -->
+  <line x1="119" y1="148" x2="119" y2="182" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="59"  y1="182" x2="179" y2="182" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="59"  y1="182" x2="59"  y2="194" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="119" y1="182" x2="119" y2="194" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="179" y1="182" x2="179" y2="194" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <line x1="360" y1="148" x2="360" y2="182" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="291" y1="182" x2="429" y2="182" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="291" y1="182" x2="291" y2="194" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="182" x2="360" y2="194" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="429" y1="182" x2="429" y2="194" stroke="#c4b5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <line x1="601" y1="148" x2="601" y2="182" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="541" y1="182" x2="661" y2="182" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="541" y1="182" x2="541" y2="194" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="601" y1="182" x2="601" y2="194" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="661" y1="182" x2="661" y2="194" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <!-- DataFabric subsystem components -->
+  <rect x="19"  y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="59"  y="207" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Catalog</text>
+  <text x="59"  y="218" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Lookup</text>
+  <rect x="79"  y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="119" y="207" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Consent</text>
+  <text x="119" y="218" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Validator</text>
+  <rect x="139" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="179" y="207" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Lineage</text>
+  <text x="179" y="218" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Recorder</text>
+
+  <!-- Inference subsystem components -->
+  <rect x="251" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="291" y="207" text-anchor="middle" font-size="7.5" fill="#6d28d9">Prompt</text>
+  <text x="291" y="218" text-anchor="middle" font-size="7.5" fill="#6d28d9">Formatter</text>
+  <rect x="320" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="360" y="207" text-anchor="middle" font-size="7.5" fill="#6d28d9">Token</text>
+  <text x="360" y="218" text-anchor="middle" font-size="7.5" fill="#6d28d9">Counter</text>
+  <rect x="389" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#c4b5fd" stroke-width="0.75"/>
+  <text x="429" y="207" text-anchor="middle" font-size="7.5" fill="#6d28d9">Retry</text>
+  <text x="429" y="218" text-anchor="middle" font-size="7.5" fill="#6d28d9">Handler</text>
+
+  <!-- Tool Registry subsystem components -->
+  <rect x="492" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="532" y="207" text-anchor="middle" font-size="7.5" fill="#166534">Schema</text>
+  <text x="532" y="218" text-anchor="middle" font-size="7.5" fill="#166534">Validator</text>
+  <rect x="561" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="601" y="207" text-anchor="middle" font-size="7.5" fill="#166534">Permission</text>
+  <text x="601" y="218" text-anchor="middle" font-size="7.5" fill="#166534">Checker</text>
+  <rect x="621" y="194" width="80" height="30" rx="2" fill="#fafafa" stroke="#86efac" stroke-width="0.75"/>
+  <text x="661" y="207" text-anchor="middle" font-size="7.5" fill="#166534">Result</text>
+  <text x="661" y="218" text-anchor="middle" font-size="7.5" fill="#166534">Normaliser</text>
+
+  <!-- Pattern distinction note -->
+  <line x1="360" y1="224" x2="360" y2="244" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="40" y="244" width="640" height="40" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="0.75"/>
+  <text x="360" y="260" text-anchor="middle" font-size="8.5" font-weight="500" fill="#4338ca">Facade vs Adapter vs Mediator — three distinct patterns in NLI</text>
+  <text x="360" y="277" text-anchor="middle" font-size="8" fill="#4338ca">Facade: simplify complex subsystem · Adapter: fix incompatible interface · Mediator: coordinate bidirectional peers</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="360" y1="284" x2="360" y2="300" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="40" y="300" width="640" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="318" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — two agentic extensions</text>
+  <line x1="60" y1="324" x2="660" y2="324" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="338" text-anchor="middle" font-size="8.5" fill="#78350f">1. Ambiguous subsystem states require escalation logic — uncertain consent cannot propagate as a simple error</text>
+  <text x="360" y="352" text-anchor="middle" font-size="8.5" fill="#78350f">2. Facade is the primary accountability boundary — natural instrumentation point for EDP1 trace production</text>
+  <text x="360" y="366" text-anchor="middle" font-size="8" fill="#b45309">All data access flows through the Facade — consent enforcement is architecturally guaranteed, not conventional</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="372" x2="360" y2="388" stroke="#eee" stroke-width="0.75"/>
+  <rect x="60" y="388" width="600" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="406" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Adapter · Singleton · Decorator · Builder · Mediator · Command</text>
+
+</svg>
