@@ -18,7 +18,7 @@ The Decorator pattern solves an extension problem. When a component needs additi
 
 In agentic AI systems, the equivalent problem is composable agent wrapping. A `BaseReActAgent` should not contain guardrail logic, logging infrastructure, reflection cycles, or rate limiting. These are cross-cutting concerns that need to be applied consistently across many agent types, updated independently when policies change, and audited separately from core reasoning logic. Decorator makes that separation structural rather than a matter of discipline.
 
-Four decorator types address the core concerns of agentic deployment. They fall into two classes based on their activation model. **Always-active decorators** — `GuardrailDecorator` and `LoggingDecorator` — apply to every agent output regardless of context. They form the mandatory safety and observability layer. **Context-specific decorators** — `ReflectionDecorator` and `RateLimitDecorator` — are activated based on task type, quality requirements, or cost constraints.
+Five decorator types address the core concerns of agentic deployment. They fall into two classes based on their activation model. **Always-active decorators** — `GuardrailDecorator`, `LoggingDecorator`, and `HITLDecorator` — apply to every agent output regardless of context. They form the mandatory safety, observability, and human oversight layer. **Context-specific decorators** — `ReflectionDecorator` and `RateLimitDecorator` — are activated based on task type, quality requirements, or cost constraints.
 
 The four GoF roles translate as follows:
 
@@ -27,7 +27,7 @@ The four GoF roles translate as follows:
 | Component | `Agent` interface | Defines `execute(task) → response`. Both base agents and decorators implement it. |
 | Concrete Component | `BaseReActAgent`, any leaf agent | Core reasoning implementation. No knowledge of wrappers. Replaceable independently of the stack. |
 | Abstract Decorator | `AgentDecorator` | Holds a reference to a wrapped `Agent`. Delegates `execute(task)` to the wrapped component. |
-| Concrete Decorator | `GuardrailDecorator`, `LoggingDecorator`, `ReflectionDecorator`, `RateLimitDecorator` | Each adds one cross-cutting concern. Stackable with ordering constraints. |
+| Concrete Decorator | `GuardrailDecorator`, `LoggingDecorator`, `HITLDecorator`, `ReflectionDecorator`, `RateLimitDecorator` | Each adds one cross-cutting concern. Stackable with ordering constraints. |
 
 : GoF roles translated to the agentic composable wrapper context {#tbl-decorator-roles}
 
@@ -43,10 +43,24 @@ The responsible AI argument for Decorator is stronger than for most patterns in 
 
 **RateLimitDecorator** throttles model calls per unit time. It maintains a token budget and a call counter. It is the only decorator in the standard stack that does not involve LLM calls and is therefore deterministic.
 
+**HITLDecorator** routes agent outputs to a human reviewer before returning to the client. It intercepts the output, submits it to a review queue, waits for a human verdict, and either passes through or blocks based on that verdict. It is always active in deployment contexts where regulatory, ethical, or clinical requirements mandate human oversight of AI outputs — for instance, any NLI output that touches health data, clinical indicators, or safeguarding concerns. Unlike the `HumanJudge` in the Abstract Factory pattern — which evaluates eval verdicts — the `HITLDecorator` intercepts agent outputs before they reach the end user.
+
+::: {.callout-note .callout-tension}
+## Proxy vs Decorator — why HITL is a Decorator concern
+
+In GoF, Proxy and Decorator are structurally almost identical — both wrap a component, both preserve its interface, both intercept calls. The distinction is intent: Decorator adds behaviour, Proxy controls access. A logger is a Decorator; a firewall is a Proxy.
+
+In agentic AI this distinction collapses. Every access control decision in an LLM-based system is itself a reasoning or review task. The `GuardrailDecorator` that blocks a violating output is not just enforcing a rule — it is making a judgment. The `HITLDecorator` that routes to a human reviewer is not just restricting access — it is adding a mandatory processing step that happens to sometimes result in blocking. Both are simultaneously adding behaviour and controlling access. The clean GoF separation does not hold because the control decision requires the same kind of deliberation as the behaviour addition.
+
+HITL is therefore modelled as a Decorator rather than a Proxy for a specific reason: human review is an explicit step added to the processing pipeline, not a gatekeeper that decides whether the pipeline runs. The human reviewer receives the output, considers it, and returns a verdict. That is behaviour addition. A Proxy would simply decide pass or block at the boundary without the client knowing a review step occurred. The  makes the review step visible in the architecture — it is a named, auditable, latency-adding concern, not a transparent access controller.
+
+This means Proxy does not earn a standalone entry in this catalogue. Its access control concern is covered here; its HITL instantiation is the `HITLDecorator`; its consent gating concern is covered by the `DataProductAccessAgent` Facade.
+:::
+
 ::: {.callout-note .callout-tension}
 ## Decorator Ordering — a safety constraint, not a style preference
 
-In GoF, decorator ordering rarely affects correctness — independent features can be stacked in either order. In agentic AI, ordering is a safety concern. The canonical stack from outermost to innermost is: **GuardrailDecorator → LoggingDecorator → RateLimitDecorator → ReflectionDecorator → BaseAgent**.
+In GoF, decorator ordering rarely affects correctness — independent features can be stacked in either order. In agentic AI, ordering is a safety concern. The canonical stack from outermost to innermost is: **GuardrailDecorator → LoggingDecorator → HITLDecorator → RateLimitDecorator → ReflectionDecorator → BaseAgent**.
 
 GuardrailDecorator must be outermost — it must see the final output the client receives. LoggingDecorator must sit just inside — it logs guardrail-approved outputs only. RateLimitDecorator before ReflectionDecorator — no point running an expensive reflection cycle on a call that will be rate-limited. Getting this ordering wrong produces safety gaps and inaccurate audit trails.
 :::
@@ -65,13 +79,13 @@ GuardrailDecorator must be outermost — it must see the final output the client
 
 The minimal diagram (@fig-decorator-minimal) shows the decorator stack from outermost to innermost, the two activation classes, the canonical ordering constraint, and the stochasticity delta properties for each decorator type.
 
-![Decorator pattern — structural diagram. Stack from outermost to innermost: GuardrailDecorator and LoggingDecorator always active, RateLimitDecorator and ReflectionDecorator context-specific, BaseReActAgent at core. Canonical ordering is a safety constraint.](../../figures/decorator-minimal.svg){#fig-decorator-minimal}
+![Decorator pattern — structural diagram. Stack from outermost to innermost: GuardrailDecorator, LoggingDecorator, and HITLDecorator always active, RateLimitDecorator and ReflectionDecorator context-specific, BaseReActAgent at core. Canonical ordering is a safety constraint.](../../figures/decorator-minimal.svg){#fig-decorator-minimal}
 
 ## Canonical Example — NLI Agent Layer and Frontend Layer
 
 The Decorator pattern appears at two distinct levels in the NLI architecture simultaneously.
 
-At the **agent layer**, every agent in `nli_agents` is wrapped with the standard decorator stack before registration with the `ConversationOrchestrator`. The `GuardrailDecorator` reads the `SafetyConstraintStore` singleton — which in NLI includes both content safety constraints and the data governance constraints from the Global Data Consortium consent framework. No agent output reaches a user without passing through this layer. The `LoggingDecorator` produces EDP1 traces for every interaction. The `ReflectionDecorator` is activated selectively — for the `PlannerCoachAgent` and `ExperienceCaptureAgent` where quality justifies the latency cost, but not for the `PersonalDataQAAgent` answering simple factual queries.
+At the **agent layer**, every agent in `nli_agents` is wrapped with the standard decorator stack before registration with the `ConversationOrchestrator`. The `GuardrailDecorator` reads the `SafetyConstraintStore` singleton — which in NLI includes both content safety constraints and the data governance constraints from the Global Data Consortium consent framework. No agent output reaches a user without passing through this layer. The `LoggingDecorator` produces EDP1 traces for every interaction. The `HITLDecorator` is active for any output touching health data, clinical indicators, or safeguarding concerns — routing those outputs to a designated human reviewer before delivery. The `ReflectionDecorator` is activated selectively — for the `PlannerCoachAgent` and `ExperienceCaptureAgent` where quality justifies the latency cost, but not for the `PersonalDataQAAgent` answering simple factual queries.
 
 At the **frontend layer**, the same structural logic applies to UI components. `ConsentDecorator` and `GuardrailDecorator` are always active. `ChatbotDecorator`, `WellnessDecorator`, and `CoachDecorator` are context-specific — activated by user role and session type, stackable when multiple contexts are active.
 
