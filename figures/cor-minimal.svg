@@ -1,0 +1,120 @@
+<svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Three chain headers -->
+  <rect x="10"  y="10" width="218" height="24" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="119" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">API Request Pipeline</text>
+  <rect x="251" y="10" width="218" height="24" rx="3" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="360" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#dc2626">Escalation Chain</text>
+  <rect x="492" y="10" width="218" height="24" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="601" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">Dynamic Capability</text>
+
+  <!-- Senders -->
+  <rect x="10"  y="48" width="218" height="22" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="119" y="63" text-anchor="middle" font-size="8" fill="#6b7280">API Gateway</text>
+  <rect x="251" y="48" width="218" height="22" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="360" y="63" text-anchor="middle" font-size="8" fill="#6b7280">GuardrailDecorator — flags content</text>
+  <rect x="492" y="48" width="218" height="22" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="601" y="63" text-anchor="middle" font-size="8" fill="#6b7280">AgentRunner — submits task</text>
+
+  <!-- Arrows down -->
+  <line x1="119" y1="70" x2="119" y2="82" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="360" y1="70" x2="360" y2="82" stroke="#fca5a5" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <line x1="601" y1="70" x2="601" y2="82" stroke="#86efac" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <!-- Chain A -->
+  <rect x="10"  y="82" width="218" height="24" rx="2" fill="#eff6ff" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="89"  y="94" font-size="8" font-weight="500" fill="#1d4ed8">AuthHandler</text>
+  <text x="200" y="94" text-anchor="end" font-size="7.5" fill="#6b7280">det.</text>
+  <line x1="119" y1="106" x2="119" y2="112" stroke="#93c5fd" stroke-width="0.75"/>
+  <polygon points="115,112 119,117 123,112" fill="#93c5fd"/>
+
+  <rect x="10"  y="117" width="218" height="24" rx="2" fill="#eff6ff" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="89"  y="129" font-size="8" font-weight="500" fill="#1d4ed8">ValidationHandler</text>
+  <text x="200" y="129" text-anchor="end" font-size="7.5" fill="#6b7280">det.</text>
+  <line x1="119" y1="141" x2="119" y2="147" stroke="#93c5fd" stroke-width="0.75"/>
+  <polygon points="115,147 119,152 123,147" fill="#93c5fd"/>
+
+  <rect x="10"  y="152" width="218" height="24" rx="2" fill="#eff6ff" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="89"  y="164" font-size="8" font-weight="500" fill="#1d4ed8">RateLimitHandler</text>
+  <text x="200" y="164" text-anchor="end" font-size="7.5" fill="#6b7280">det.</text>
+  <line x1="119" y1="176" x2="119" y2="182" stroke="#93c5fd" stroke-width="0.75"/>
+  <polygon points="115,182 119,187 123,182" fill="#93c5fd"/>
+
+  <rect x="10"  y="187" width="218" height="24" rx="2" fill="#eff6ff" stroke="#93c5fd" stroke-width="0.75"/>
+  <text x="89"  y="199" font-size="8" font-weight="500" fill="#1d4ed8">ConsentHandler</text>
+  <text x="200" y="199" text-anchor="end" font-size="7.5" fill="#6b7280">det.</text>
+  <line x1="119" y1="211" x2="119" y2="217" stroke="#93c5fd" stroke-width="0.75"/>
+  <polygon points="115,217 119,222 123,217" fill="#93c5fd"/>
+
+  <rect x="10"  y="222" width="218" height="24" rx="2" fill="#1d4ed8" stroke="#1d4ed8"/>
+  <text x="119" y="237" text-anchor="middle" font-size="8.5" font-weight="500" fill="#fff">RoutingHandler — terminal</text>
+
+  <!-- Chain B -->
+  <rect x="251" y="82" width="218" height="24" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.75"/>
+  <text x="330" y="94" font-size="8" font-weight="500" fill="#dc2626">AutomatedSafetyCheck</text>
+  <text x="462" y="94" text-anchor="end" font-size="7.5" fill="#6b7280">det.</text>
+  <line x1="360" y1="106" x2="360" y2="112" stroke="#fca5a5" stroke-width="0.75"/>
+  <polygon points="356,112 360,117 364,112" fill="#fca5a5"/>
+
+  <rect x="251" y="117" width="218" height="24" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.75"/>
+  <text x="330" y="129" font-size="8" font-weight="500" fill="#dc2626">ContentModerationAgent</text>
+  <text x="462" y="129" text-anchor="end" font-size="7.5" fill="#ef4444">stoch.</text>
+  <line x1="360" y1="141" x2="360" y2="147" stroke="#fca5a5" stroke-width="0.75"/>
+  <polygon points="356,147 360,152 364,147" fill="#fca5a5"/>
+
+  <rect x="251" y="152" width="218" height="24" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.75"/>
+  <text x="330" y="164" font-size="8" font-weight="500" fill="#dc2626">HumanReviewAgent</text>
+  <text x="462" y="164" text-anchor="end" font-size="7.5" fill="#6b7280">HITL</text>
+  <line x1="360" y1="176" x2="360" y2="182" stroke="#fca5a5" stroke-width="0.75"/>
+  <polygon points="356,182 360,187 364,182" fill="#fca5a5"/>
+
+  <rect x="251" y="187" width="218" height="24" rx="2" fill="#dc2626" stroke="#dc2626"/>
+  <text x="360" y="202" text-anchor="middle" font-size="8.5" font-weight="500" fill="#fff">EscalationSafetyAgent — terminal</text>
+
+  <!-- Chain C -->
+  <rect x="492" y="82" width="218" height="24" rx="2" fill="#f0fdf4" stroke="#86efac" stroke-width="0.75"/>
+  <text x="571" y="94" font-size="8" font-weight="500" fill="#166534">SpecialistAgent A</text>
+  <text x="703" y="94" text-anchor="end" font-size="7.5" fill="#6b7280">canHandle()?</text>
+  <line x1="601" y1="106" x2="601" y2="112" stroke="#86efac" stroke-width="0.75"/>
+  <polygon points="597,112 601,117 605,112" fill="#86efac"/>
+
+  <rect x="492" y="117" width="218" height="24" rx="2" fill="#f0fdf4" stroke="#86efac" stroke-width="0.75"/>
+  <text x="571" y="129" font-size="8" font-weight="500" fill="#166534">SpecialistAgent B</text>
+  <text x="703" y="129" text-anchor="end" font-size="7.5" fill="#6b7280">canHandle()?</text>
+  <line x1="601" y1="141" x2="601" y2="147" stroke="#86efac" stroke-width="0.75"/>
+  <polygon points="597,147 601,152 605,147" fill="#86efac"/>
+
+  <rect x="492" y="152" width="218" height="24" rx="2" fill="#f0fdf4" stroke="#86efac" stroke-width="0.75"/>
+  <text x="571" y="164" font-size="8" font-weight="500" fill="#166534">SpecialistAgent C</text>
+  <text x="703" y="164" text-anchor="end" font-size="7.5" fill="#6b7280">canHandle()?</text>
+  <line x1="601" y1="176" x2="601" y2="182" stroke="#86efac" stroke-width="0.75"/>
+  <polygon points="597,182 601,187 605,182" fill="#86efac"/>
+
+  <rect x="492" y="187" width="218" height="24" rx="2" fill="#166534" stroke="#166534"/>
+  <text x="601" y="202" text-anchor="middle" font-size="8.5" font-weight="500" fill="#fff">FallbackAgent — terminal</text>
+
+  <!-- Key property -->
+  <text x="360" y="232" text-anchor="middle" font-size="8" fill="#ccc" letter-spacing="1.5">HANDLERS UNAWARE OF EACH OTHER · SENDER UNAWARE OF HANDLER</text>
+  <line x1="10"  y1="235" x2="132" y2="235" stroke="#eee" stroke-width="0.5"/>
+  <line x1="588" y1="235" x2="710" y2="235" stroke="#eee" stroke-width="0.5"/>
+
+  <!-- Mediator distinction -->
+  <line x1="360" y1="248" x2="360" y2="264" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="40" y="264" width="640" height="36" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="0.75"/>
+  <text x="360" y="280" text-anchor="middle" font-size="8.5" font-weight="500" fill="#4338ca">CoR vs Mediator: CoR = linear, decoupled, no global view, policy in chain structure</text>
+  <text x="360" y="293" text-anchor="middle" font-size="8.5" fill="#4338ca">Mediator = centralised, knows all agents, explicit routing logic · CoR where decoupling is genuine</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="360" y1="300" x2="360" y2="316" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="40" y="316" width="640" height="60" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="334" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — two agentic extensions</text>
+  <line x1="60" y1="340" x2="660" y2="340" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="354" text-anchor="middle" font-size="8.5" fill="#78350f">1. LLM-based handlers stochastic — same request may be handled at different levels on different runs</text>
+  <text x="360" y="368" text-anchor="middle" font-size="8.5" fill="#78350f">2. Partial handling must be explicit — passing handler attaches named context, does not silently modify</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="376" x2="360" y2="392" stroke="#eee" stroke-width="0.75"/>
+  <rect x="60" y="392" width="600" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="410" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Mediator · Strategy · Decorator · Abstract Factory · Template Method</text>
+
+</svg>

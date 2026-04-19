@@ -1,0 +1,97 @@
+# Chain of Responsibility {#sec-chain-of-responsibility}
+
+::: {.pattern-category}
+Behavioural · Pattern 9 of 14
+:::
+
+::: {.gof-box}
+Avoid coupling the sender of a request to its receiver by giving more than one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it.
+
+::: {.gof-source}
+@gamma1994design, p. 223
+:::
+:::
+
+## The Translation Argument
+
+The Chain of Responsibility pattern solves a routing problem through decoupling. A request enters a chain of handlers. Each handler decides independently: can I handle this? If yes, it handles the request and the chain stops. If no, it passes the request to the next handler. The sender does not know which handler will process the request. The handlers do not know about each other except through the chain structure. The chain can be assembled, extended, and reconfigured without changing either the sender or any individual handler.
+
+Before mapping this to agentic AI, a critical boundary condition must be stated. Chain of Responsibility applies only where the decoupling is genuine. In most multi-agent systems, the orchestrator explicitly knows which agents exist and what they can do. A fixed known set of agents with defined capabilities does not need a chain — it needs a router, which is Mediator territory. Forcing a known agent set into a CoR structure adds unnecessary indirection without structural benefit. The pattern earns its place in agentic AI specifically where decoupling between sender and handler is real and valuable.
+
+Three such contexts exist:
+
+**API request pipeline.** Pre-processing middleware where each handler is an independent concern — authentication, validation, rate limiting, consent checking, routing. Each handler either rejects at its level or passes forward. Handlers are genuinely unaware of each other except through the chain.
+
+**Escalation chain.** Safety escalation where each level resolves what it can and passes what it cannot. The escalation policy is encoded in the chain structure itself — visible, testable, and auditable independently of any handler's implementation.
+
+**Dynamic capability routing.** Systems where the agent set is not fixed in advance. Agents register what they can handle; the chain finds the first capable handler without the orchestrator knowing the full set.
+
+The three GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Handler | `RequestHandler` interface | Defines `handle(request)` and `setNext(handler)`. Both concrete handlers and the chain client use this interface. |
+| Concrete Handler | `AuthHandler`, `AutomatedSafetyCheck`, specialist agents | Decides whether to handle at its level or pass to the next. No knowledge of other handlers except its immediate successor. |
+| Client | API gateway, pipeline orchestrator | Submits the request to the first handler. Does not know which handler will ultimately process it. |
+
+: GoF roles translated to the agentic request routing context {#tbl-cor-roles}
+
+The responsible AI implication is strongest for the escalation chain. Structurally guaranteeing that every flagged content passes through automated checks before reaching human review — and that human reviewers only see content that automated checks could not resolve — is both more efficient and more accountable than ad-hoc escalation. The policy is in the chain structure, not in any individual handler.
+
+## The Mediator Distinction {#sec-cor-tension}
+
+::: {.callout-note .callout-tension}
+## Chain of Responsibility vs Mediator
+
+Both patterns route requests between components, but their structural logic is opposite.
+
+**Chain of Responsibility** is linear and decoupled. Each handler knows only its immediate successor. No handler has a global view. The routing policy is implicit in the chain structure. Best for: middleware pipelines, escalation chains, and dynamic capability routing where the handler set is not fixed.
+
+**Mediator** is centralised and coordinated. The mediator has explicit knowledge of all agents. It routes, coordinates, and synthesises. Agents know only the mediator. Best for: orchestrating a known, fixed set of agents whose outputs need to be synthesised.
+
+In NLI, the `ConversationOrchestrator` is a Mediator — it knows all interaction layer agents. The `nli_api` request processing pipeline and the safety escalation chain are Chains of Responsibility — each handler is unaware of the others. Applying CoR to a fixed known agent set adds indirection without benefit. The pattern applies where decoupling is genuine.
+:::
+
+## The Stochasticity Delta {#sec-cor-delta}
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**Handler decision logic may be stochastic.** In GoF, each handler makes a deterministic decision — if condition X holds, handle; otherwise pass. In agentic AI, a handler using an LLM to assess whether it can handle a request may make different decisions on identical inputs. A `ContentModerationAgent` assessing whether content requires human review makes a probabilistic judgment. The same request may be handled at different chain levels on different runs. Rule-based handlers avoid this but sacrifice contextual sensitivity. The choice between deterministic and stochastic handlers at each chain position is an explicit architectural decision.
+
+**Partial handling creates ambiguous state.** In GoF, a handler either handles completely or passes the request unchanged. In agentic AI, a handler might partially process — add context, perform retrieval, flag a concern — before deciding it cannot fully handle and passing forward. The next handler receives a request that is neither the original nor a complete response. This partially modified state must be managed explicitly: the passing handler should attach its work as named context on the request object, not silently modify it. The receiving handler needs to know what was already attempted. This is the context handoff principle from the Strategy pattern applied to chain routing.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-cor-minimal) shows the three Chain of Responsibility instantiations — API request pipeline, escalation chain, and dynamic capability routing — with each handler's decision logic, the Mediator distinction, and the stochasticity delta.
+
+![Chain of Responsibility — structural diagram. Three instantiations: API request pipeline (deterministic middleware), escalation chain (mixed deterministic and stochastic), and dynamic capability routing. Handlers are unaware of each other; sender is unaware of which handler resolves.](../../figures/cor-minimal.svg){#fig-cor-minimal}
+
+## Canonical Example — NLI API Pipeline and Escalation Chain
+
+The NLI system contains two active Chain of Responsibility instantiations.
+
+The **API request pipeline** in `nli_api` processes every incoming request through a five-handler chain before it reaches the agent layer. The `AuthHandler` validates the bearer token and rejects unauthenticated requests. The `ValidationHandler` checks request schema. The `RateLimitHandler` checks token budget against the `EvalThresholdRegistry` singleton. The `ConsentHandler` validates data product access consent. The `RoutingHandler` classifies and routes. Each handler is deterministic and unaware of the others. Adding a new pre-processing concern requires only adding a new handler — no existing handler or gateway changes.
+
+The **safety escalation chain** processes every content item flagged by the `GuardrailDecorator`. The `AutomatedSafetyCheck` applies rule-based filters and resolves clear-cut cases. Uncertain content moves to the `ContentModerationAgent`, which applies LLM-based contextual assessment — stochastic, so the same borderline content may resolve here on one run and escalate on another. Content the moderation agent cannot confidently resolve moves to `HumanReviewAgent`, routing to the `HITLDecorator` queue. The `EscalationSafetyAgent` handles anything that reaches it as final authority. The escalation policy is encoded in the chain structure — visible, testable, and auditable independently of any handler's implementation.
+
+## Composability {#sec-cor-composability}
+
+**Mediator** is the explicit contrast pattern. Chain of Responsibility for linear sequential processing where handlers are unaware of each other. Mediator for coordinating a known agent set with bidirectional communication. Both appear in NLI simultaneously at different levels.
+
+**Strategy** governs how each handler processes its request. The chain determines routing; Strategy determines reasoning. The context handoff mechanism from Strategy — passing accumulated context forward explicitly — applies to partial handling in chains.
+
+**Decorator** sits above the chain. The `GuardrailDecorator` flags content for the escalation chain. The `LoggingDecorator` records every chain traversal. The Decorator stack wraps the chain as a whole; the chain handles internal routing.
+
+**Abstract Factory** produces the eval suite for each handler using LLM reasoning. Stochastic handlers in the chain need eval coverage just as standalone agents do.
+
+**Template Method** describes the chain's own processing skeleton: receive request, assess handleability, handle or pass, attach context if passing. Fixed skeleton with pluggable handler logic — the Template Method pattern applied to chain processing.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Mediator</strong> — explicit contrast pattern</span>
+<span class="ctag"><strong>Strategy</strong> — handler reasoning and context handoff</span>
+<span class="ctag"><strong>Decorator</strong> — sits above the chain</span>
+<span class="ctag"><strong>Abstract Factory</strong> — eval for stochastic handlers</span>
+<span class="ctag"><strong>Template Method</strong> — chain processing skeleton</span>
+:::
