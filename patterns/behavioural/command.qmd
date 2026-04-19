@@ -1,0 +1,106 @@
+# Command {#sec-command}
+
+::: {.pattern-category}
+Behavioural · Pattern 10 of 14
+:::
+
+::: {.gof-box}
+Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+
+::: {.gof-source}
+@gamma1994design, p. 233
+:::
+:::
+
+## The Translation Argument
+
+The Command pattern encapsulates a request as a self-contained object. That object carries everything needed to execute the request — its parameters, its receiver, its context — and can be stored, queued, logged, transmitted, and inspected independently of the moment it executes. The four properties GoF identifies — parameterisation, queuing, logging, and undo — all translate meaningfully to agentic AI. One of them translates more powerfully than GoF anticipated.
+
+**Parameterisation.** Tool invocations as Command objects. Each carries the tool name, inputs, agent context, and active schema version. The command can be inspected, validated, and routed before execution. The `ToolRegistryFacade` executes commands; it does not accept raw function calls.
+
+**Queuing.** Commands can be deferred, batched, and prioritised. The `RateLimitDecorator` is a command queue upstream of execution. Parallel tool calls are queued to respect concurrency limits. Urgent commands can be promoted without changing the invoker.
+
+**Logging as data product.** This is the strongest translation. EDP1 — the Agent Interaction Trace — is a Command log. Every tool invocation, every reasoning step, every agent interaction is a Command object with full provenance. This is not a log entry. It is a governed data asset — versioned, schematised, and queryable across runs. The entire eval-as-data-product infrastructure rests on Command as the atomic unit of provenance.
+
+**Rollback, not undo.** GoF undo reverses a single operation deterministically. Agentic systems cannot replay commands deterministically — the same inputs produce different LLM outputs. What is possible is rollback: the command's `mementoRef` field links to the state snapshot taken before it executed. When rollback is needed, the system restores that Memento snapshot. Command identifies what went wrong; Memento provides the restoration point. Together they form the agentic equivalent of undo.
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Command | `AgentCommand` interface | Defines `execute()`, `undo()`, and `getProvenance()`. All concrete commands implement it. |
+| Concrete Command | `ToolInvocationCommand`, `DataAccessCommand`, `MacroCommand` | Encapsulates a specific request with all parameters. Carries full provenance. Storable, queueable, replayable. |
+| Invoker | `AgentRunner`, `ToolRegistryFacade` | Holds a command and calls `execute()`. Manages the command queue and command log. Does not know what the command does internally. |
+| Receiver | External tool, data source, model | The actual resource the command interacts with. Unaware of the Command wrapper. |
+
+: GoF roles translated to the agentic provenance and rollback context {#tbl-command-roles}
+
+The `MacroCommand` deserves explicit treatment. A `PlanExecutionCommand` wraps a full multi-step workflow — plan, execute, verify — as a single command. It delegates to individual `ToolInvocationCommands` internally. From the outside it is one command with one undo entry. This enables workflow-level rollback rather than step-level rollback.
+
+## Command as Governed Data Asset {#sec-command-edp}
+
+Every `ToolInvocationCommand` carries the following provenance fields as first-class structured data:
+
+- `agentId` — which agent issued the command
+- `toolName` — which tool was called
+- `inputs` — full input parameters
+- `output` — full result returned
+- `timestamp` — execution time
+- `schemaVersion` — `ToolSchemaCatalog` version active at execution
+- `decoratorStack` — which wrappers were active
+- `sessionId` — which session this belongs to
+- `mementoRef` — link to the state snapshot before execution
+- `evalVerdict` — EDP2 judge score, attached post-execution
+
+This structure makes the Command Log EDP1 — the Agent Interaction Trace. EDP2 judge scores from the Abstract Factory are attached to Command records after execution. EDP3 aggregates over the Command Log. EDP4 is a curated subset labelled as ground truth. The eval data product infrastructure rests on Command as its atomic unit.
+
+Critically, the architecture produces evaluation outputs not as transient signals but as governed data assets — versioned, schematised, and queryable across runs. Eval-as-data-product without Command is a goal without infrastructure.
+
+## The Stochasticity Delta {#sec-command-delta}
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**Commands are not idempotent.** In GoF, undo restores the prior state deterministically — the same object state, every time. In agentic AI, replaying a command — calling the same tool with the same inputs — may produce a different result. True undo in the GoF sense is not possible for LLM-based commands. What is possible is rollback: the command's `mementoRef` field links to the Memento snapshot taken before execution. When rollback is needed, the system restores that snapshot rather than reversing the command's effects. Command identifies the problem; Memento provides the restoration point. The two patterns compose into the agentic equivalent of undo, but the mechanism is fundamentally different from GoF's.
+
+**Pre-execution validation may be stochastic.** Before a `ToolInvocationCommand` executes, the `GuardrailDecorator` validates it against the `SafetyConstraintStore`. If validation involves an LLM safety judge — a `SafetyJudge` from the Abstract Factory evaluating whether the command's intent is safe — that validation is probabilistic. The same command might be approved on one run and blocked on another. This pre-execution stochastic validation layer has no GoF equivalent.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-command-minimal) shows the Invoker, the `AgentCommand` interface, the three concrete command types, the Command Log as EDP1 governed data asset, and the stochasticity delta.
+
+![Command pattern — structural diagram. Invoker, AgentCommand interface, ToolInvocationCommand, DataAccessCommand, and MacroCommand feeding the Command Log as EDP1 governed data asset. Non-idempotency and stochastic pre-execution validation annotated in delta.](../../figures/command-minimal.svg){#fig-command-minimal}
+
+## Canonical Example — NLI Tool Invocations and Eval Data Pipeline
+
+In NLI, every tool invocation and every data access call is encapsulated as a Command before execution. Neither the `ToolRegistryFacade` nor the `DataProductAccessAgent` accepts raw function calls.
+
+When the `PersonalDataQAAgent` retrieves an HRV recovery data product, it constructs a `DataAccessCommand` with the product ID, its own agent ID, the current consent reference, and the active schema version. The `DataProductAccessAgent` Facade executes it — validating consent, recording lineage, enforcing access, logging the audit entry. The command is appended to the Command Log as an EDP1 record. The `TaskAgentEvalFactory`'s `OutputJudge` attaches an EDP2 verdict post-execution.
+
+When the `PlannerCoachAgent` constructs a study plan, its entire workflow is encapsulated as a `PlanExecutionCommand` — a `MacroCommand` containing retrieval, synthesis, and formatting sub-commands. If the student flags the plan as unhelpful, the system retrieves the `mementoRef` linking to the pipeline state before that command executed, restores the Memento snapshot, and re-runs the planning workflow with adjusted parameters.
+
+The accumulated Command Log is the substrate for all longitudinal analysis in NLI. The `PatternWatcherAgent`'s Observer relationship with the Command Log enables it to detect patterns across a student's interaction history — which tools are invoked, at what frequency, with what success rates — without reprocessing raw data.
+
+## Composability {#sec-command-composability}
+
+**Memento** is Command's closest structural partner. Command records what happened — complete provenance of every action. Memento records the state when it happened — a snapshot of the pipeline. Together they provide agentic rollback. A Command Log without Memento tells you what went wrong but cannot restore prior state. Memento without Command tells you where the system was but not what caused the deviation.
+
+**Abstract Factory** connects through the eval pipeline. The judge suite attaches EDP2 scores to Command records after execution. EDP1 is produced by Command; EDP2 is attached by Abstract Factory; EDP3 and EDP4 derive from the accumulated Command-plus-verdict records.
+
+**Facade** is the execution point. The `ToolRegistryFacade` executes `ToolInvocationCommands`. The `DataProductAccessAgent` executes `DataAccessCommands`. Commands carry the request; the Facade carries it out. This separation keeps commands as pure provenance objects independent of execution infrastructure.
+
+**Decorator** wraps the Facade. The `GuardrailDecorator` validates commands before execution. The `LoggingDecorator` ensures every executed command is captured as an EDP1 record.
+
+**Observer** watches the Command Log. The `PatternWatcherAgent` is notified when new Command records are appended. The EDP3 aggregation pipeline is notified when new judge verdicts are attached.
+
+**Chain of Responsibility** processes commands before execution. Every command flowing through `nli_api` passes through authentication, validation, rate limiting, and consent handlers before reaching the Facade.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Memento</strong> — rollback infrastructure</span>
+<span class="ctag"><strong>Abstract Factory</strong> — EDP2 verdicts attached to records</span>
+<span class="ctag"><strong>Facade</strong> — command execution point</span>
+<span class="ctag"><strong>Decorator</strong> — validation and logging wrappers</span>
+<span class="ctag"><strong>Observer</strong> — watches Command Log for patterns</span>
+<span class="ctag"><strong>Chain of Responsibility</strong> — pre-execution validation chain</span>
+:::
