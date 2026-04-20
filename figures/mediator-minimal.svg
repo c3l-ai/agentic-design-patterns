@@ -1,0 +1,79 @@
+<svg width="680" height="480" viewBox="0 0 680 480" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Client -->
+  <rect x="240" y="10" width="200" height="24" rx="2" fill="#fafafa" stroke="#ddd" stroke-width="0.75"/>
+  <text x="340" y="26" text-anchor="middle" font-size="8.5" fill="#6b7280">Client — API Layer / User Interface</text>
+  <line x1="340" y1="34" x2="340" y2="50" stroke="#94a3b8" stroke-width="0.75" stroke-dasharray="3,2"/>
+
+  <!-- ConversationOrchestrator -->
+  <rect x="90" y="50" width="500" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="340" y="68" text-anchor="middle" font-size="9" fill="#92400e">Concrete Mediator</text>
+  <text x="340" y="82" text-anchor="middle" font-size="12" font-weight="500" fill="#1a1814">ConversationOrchestrator</text>
+  <line x1="100" y1="86" x2="580" y2="86" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="340" y="97" text-anchor="middle" font-size="8" fill="#92400e">classifyIntent() · selectAgent() · coordinate() · synthesise()</text>
+  <text x="340" y="109" text-anchor="middle" font-size="8" fill="#92400e">enforceSessionSafety() · passContext(explicit) · manageObservers()</text>
+  <text x="340" y="117" text-anchor="middle" font-size="7.5" fill="#b45309">knows all colleagues · session singleton · A2A protocol substrate</text>
+
+  <!-- Spoke lines -->
+  <line x1="340" y1="122" x2="340" y2="138" stroke="#fbbf24" stroke-width="0.75"/>
+  <line x1="90"  y1="138" x2="590" y2="138" stroke="#fbbf24" stroke-width="0.75"/>
+  <line x1="90"  y1="138" x2="90"  y2="154" stroke="#fbbf24" stroke-width="0.75"/>
+  <line x1="223" y1="138" x2="223" y2="154" stroke="#fbbf24" stroke-width="0.75"/>
+  <line x1="457" y1="138" x2="457" y2="154" stroke="#fbbf24" stroke-width="0.75"/>
+  <line x1="590" y1="138" x2="590" y2="154" stroke="#fbbf24" stroke-width="0.75"/>
+
+  <!-- Colleague agents -->
+  <rect x="10"  y="154" width="160" height="56" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="90"  y="172" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">PersonalDataQA</text>
+  <text x="90"  y="184" text-anchor="middle" font-size="9" font-weight="500" fill="#1d4ed8">Agent</text>
+  <line x1="20" y1="188" x2="160" y2="188" stroke="#dbeafe" stroke-width="0.5"/>
+  <text x="90"  y="199" text-anchor="middle" font-size="7.5" fill="#6b7280">knows only Mediator</text>
+  <text x="90"  y="206" text-anchor="middle" font-size="7" fill="#3b82f6">ReAct · ToolUse</text>
+
+  <rect x="143" y="154" width="160" height="56" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="223" y="172" text-anchor="middle" font-size="9" font-weight="500" fill="#6d28d9">PlannerCoach</text>
+  <text x="223" y="184" text-anchor="middle" font-size="9" font-weight="500" fill="#6d28d9">Agent</text>
+  <line x1="153" y1="188" x2="293" y2="188" stroke="#ede9fe" stroke-width="0.5"/>
+  <text x="223" y="199" text-anchor="middle" font-size="7.5" fill="#6b7280">knows only Mediator</text>
+  <text x="223" y="206" text-anchor="middle" font-size="7" fill="#7c3aed">Planning · Reflection</text>
+
+  <rect x="377" y="154" width="160" height="56" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="457" y="172" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">Experience</text>
+  <text x="457" y="184" text-anchor="middle" font-size="9" font-weight="500" fill="#166534">CaptureAgent</text>
+  <line x1="387" y1="188" x2="527" y2="188" stroke="#dcfce7" stroke-width="0.5"/>
+  <text x="457" y="199" text-anchor="middle" font-size="7.5" fill="#6b7280">knows only Mediator</text>
+  <text x="457" y="206" text-anchor="middle" font-size="7" fill="#16a34a">Reflection</text>
+
+  <rect x="510" y="154" width="160" height="56" rx="3" fill="#fff7ed" stroke="#fdba74" stroke-width="1"/>
+  <text x="590" y="172" text-anchor="middle" font-size="9" font-weight="500" fill="#9a3412">PatternWatcher</text>
+  <text x="590" y="184" text-anchor="middle" font-size="9" font-weight="500" fill="#9a3412">Agent</text>
+  <line x1="520" y1="188" x2="660" y2="188" stroke="#fed7aa" stroke-width="0.5"/>
+  <text x="590" y="199" text-anchor="middle" font-size="7.5" fill="#6b7280">knows only Mediator</text>
+  <text x="590" y="206" text-anchor="middle" font-size="7" fill="#c2410c">Observer on log</text>
+
+  <!-- No direct coupling -->
+  <line x1="10" y1="226" x2="670" y2="226" stroke="#fee2e2" stroke-width="0.5" stroke-dasharray="4,3"/>
+  <text x="340" y="222" text-anchor="middle" font-size="7.5" fill="#fca5a5">no direct agent-to-agent coupling — all communication through Mediator</text>
+
+  <!-- Industry mapping -->
+  <line x1="340" y1="236" x2="340" y2="252" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="20" y="252" width="640" height="44" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="0.75"/>
+  <text x="340" y="268" text-anchor="middle" font-size="8.5" font-weight="500" fill="#4338ca">Industry term → GoF pattern</text>
+  <line x1="40" y1="274" x2="640" y2="274" stroke="#c7d2fe" stroke-width="0.5"/>
+  <text x="340" y="287" text-anchor="middle" font-size="8" fill="#4338ca">Hub-and-spoke = Mediator · Hierarchical/ownership = Composite · Middleware pipeline = CoR · Subsystem simplification = Facade · Swarm = outside GoF</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="340" y1="296" x2="340" y2="312" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="20" y="312" width="640" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="340" y="330" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — three agentic extensions</text>
+  <line x1="40" y1="336" x2="640" y2="336" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="340" y="350" text-anchor="middle" font-size="8.5" fill="#78350f">1. Intent routing may be stochastic — LLM classifier routes same query to different agents across runs</text>
+  <text x="340" y="364" text-anchor="middle" font-size="8.5" fill="#78350f">2. Output synthesis is stochastic — same agent outputs may produce different combined response</text>
+  <text x="340" y="378" text-anchor="middle" font-size="8" fill="#b45309">3. Silent coordination failure — explicit handoff contracts required; implicit state produces undebuggable failures</text>
+
+  <!-- Composability -->
+  <line x1="340" y1="384" x2="340" y2="400" stroke="#eee" stroke-width="0.75"/>
+  <rect x="40" y="400" width="600" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="340" y="418" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Composite · Chain of Responsibility · Facade · Strategy · Command · Observer · Singleton</text>
+
+</svg>
