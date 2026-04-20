@@ -1,0 +1,119 @@
+<svg width="720" height="540" viewBox="0 0 720 540" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Control Layer header -->
+  <rect x="10" y="10" width="700" height="24" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="1"/>
+  <text x="360" y="26" text-anchor="middle" font-size="9" font-weight="500" fill="#4338ca">Control Layer — State Machine separates cognition from execution control (Alenezi 2026)</text>
+
+  <!-- Context -->
+  <rect x="240" y="48" width="240" height="40" rx="3" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.25"/>
+  <text x="360" y="64" text-anchor="middle" font-size="9.5" fill="#64748b">Context</text>
+  <text x="360" y="79" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1e293b">AgentRunner / ConversationOrchestrator</text>
+  <line x1="360" y1="88" x2="360" y2="104" stroke="#94a3b8" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <text x="372" y="98" font-size="8" fill="#94a3b8">delegates to</text>
+
+  <!-- State interface -->
+  <rect x="220" y="104" width="280" height="32" rx="3" fill="#fafafa" stroke="#bbb" stroke-width="1"/>
+  <text x="360" y="118" text-anchor="middle" font-size="9" fill="#666">«interface»  AgentState</text>
+  <line x1="220" y1="121" x2="500" y2="121" stroke="#e0e0e0" stroke-width="0.5"/>
+  <text x="360" y="130" text-anchor="middle" font-size="8" fill="#888">execute(task) · canInvokeTool(t) · handleError()</text>
+
+  <!-- Six states arranged in two rows -->
+  <line x1="360" y1="136" x2="360" y2="150" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="60"  y1="150" x2="660" y2="150" stroke="#ccc" stroke-width="0.75"/>
+
+  <!-- Top row: Idle, Planning, Executing -->
+  <line x1="120" y1="150" x2="120" y2="164" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="360" y1="150" x2="360" y2="164" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="600" y1="150" x2="600" y2="164" stroke="#ccc" stroke-width="0.75"/>
+
+  <rect x="20"  y="164" width="200" height="56" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="120" y="182" text-anchor="middle" font-size="9.5" font-weight="500" fill="#166534">IdleState</text>
+  <line x1="30" y1="186" x2="210" y2="186" stroke="#dcfce7" stroke-width="0.5"/>
+  <text x="120" y="198" text-anchor="middle" font-size="7.5" fill="#6b7280">awaiting task</text>
+  <text x="120" y="210" text-anchor="middle" font-size="7" fill="#16a34a">no tool calls · minimal resources</text>
+
+  <rect x="260" y="164" width="200" height="56" rx="3" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="360" y="182" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1d4ed8">PlanningState</text>
+  <line x1="270" y1="186" x2="450" y2="186" stroke="#dbeafe" stroke-width="0.5"/>
+  <text x="360" y="198" text-anchor="middle" font-size="7.5" fill="#6b7280">constructing plan</text>
+  <text x="360" y="210" text-anchor="middle" font-size="7" fill="#3b82f6">planning tools only · no side effects</text>
+
+  <rect x="500" y="164" width="200" height="56" rx="3" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="600" y="182" text-anchor="middle" font-size="9.5" font-weight="500" fill="#6d28d9">ExecutingState</text>
+  <line x1="510" y1="186" x2="690" y2="186" stroke="#ede9fe" stroke-width="0.5"/>
+  <text x="600" y="198" text-anchor="middle" font-size="7.5" fill="#6b7280">running tool calls</text>
+  <text x="600" y="210" text-anchor="middle" font-size="7" fill="#7c3aed">full tool access · permission-scoped</text>
+
+  <!-- Transition arrows top row -->
+  <!-- Idle → Planning -->
+  <line x1="220" y1="190" x2="258" y2="190" stroke="#86efac" stroke-width="0.75"/>
+  <polygon points="254,186 260,190 254,194" fill="#86efac"/>
+  <text x="239" y="184" font-size="6.5" fill="#16a34a">task</text>
+
+  <!-- Planning → Executing -->
+  <line x1="460" y1="190" x2="498" y2="190" stroke="#93c5fd" stroke-width="0.75"/>
+  <polygon points="494,186 500,190 494,194" fill="#93c5fd"/>
+  <text x="472" y="184" font-size="6.5" fill="#3b82f6">plan ready</text>
+
+  <!-- Bottom row: Reflecting, WaitingForHuman, ErrorRecovery -->
+  <line x1="120" y1="150" x2="120" y2="238" stroke="#ccc" stroke-width="0.75" stroke-dasharray="2,2"/>
+  <line x1="360" y1="238" x2="360" y2="252" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="60"  y1="238" x2="660" y2="238" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="120" y1="238" x2="120" y2="252" stroke="#ccc" stroke-width="0.75"/>
+  <line x1="600" y1="238" x2="600" y2="252" stroke="#ccc" stroke-width="0.75"/>
+
+  <rect x="20"  y="252" width="200" height="56" rx="3" fill="#fff7ed" stroke="#fdba74" stroke-width="1"/>
+  <text x="120" y="270" text-anchor="middle" font-size="9.5" font-weight="500" fill="#9a3412">ReflectingState</text>
+  <line x1="30" y1="274" x2="210" y2="274" stroke="#fed7aa" stroke-width="0.5"/>
+  <text x="120" y="286" text-anchor="middle" font-size="7.5" fill="#6b7280">critiquing / revising output</text>
+  <text x="120" y="298" text-anchor="middle" font-size="7" fill="#c2410c">reflection ops only · ReflectionDecorator</text>
+
+  <rect x="260" y="252" width="200" height="56" rx="3" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="360" y="270" text-anchor="middle" font-size="9.5" font-weight="500" fill="#dc2626">WaitingForHuman</text>
+  <line x1="270" y1="274" x2="450" y2="274" stroke="#fca5a5" stroke-width="0.5"/>
+  <text x="360" y="286" text-anchor="middle" font-size="7.5" fill="#6b7280">HITL queue · agent suspended</text>
+  <text x="360" y="298" text-anchor="middle" font-size="7" fill="#b91c1c">no new outputs until verdict</text>
+
+  <rect x="500" y="252" width="200" height="56" rx="3" fill="#fefce8" stroke="#fde047" stroke-width="1"/>
+  <text x="600" y="270" text-anchor="middle" font-size="9.5" font-weight="500" fill="#854d0e">ErrorRecovery</text>
+  <line x1="510" y1="274" x2="690" y2="274" stroke="#fef08a" stroke-width="0.5"/>
+  <text x="600" y="286" text-anchor="middle" font-size="7.5" fill="#6b7280">assessing failure · retry / escalate</text>
+  <text x="600" y="298" text-anchor="middle" font-size="7" fill="#a16207">circuit breaker → halt if loops</text>
+
+  <!-- Key transitions bottom row -->
+  <!-- Executing → Reflecting -->
+  <line x1="600" y1="220" x2="600" y2="238" stroke="#c4b5fd" stroke-width="0.75"/>
+  <line x1="120" y1="238" x2="600" y2="238" stroke="#c4b5fd" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <line x1="120" y1="238" x2="120" y2="250" stroke="#fdba74" stroke-width="0.75"/>
+  <text x="362" y="234" font-size="6.5" fill="#7c3aed">output generated</text>
+
+  <!-- Executing → WaitingForHuman -->
+  <line x1="600" y1="220" x2="360" y2="220" stroke="#fca5a5" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="360" y1="220" x2="360" y2="250" stroke="#fca5a5" stroke-width="0.75"/>
+  <text x="462" y="216" font-size="6.5" fill="#dc2626">HITL activated</text>
+
+  <!-- Executing → ErrorRecovery -->
+  <line x1="600" y1="220" x2="600" y2="250" stroke="#fde047" stroke-width="0.75"/>
+  <text x="604" y="238" font-size="6.5" fill="#a16207">guardrail / error</text>
+
+  <!-- Strategy vs State note -->
+  <line x1="360" y1="308" x2="360" y2="324" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="30" y="324" width="660" height="40" rx="3" fill="#f0f4ff" stroke="#c7d2fe" stroke-width="0.75"/>
+  <text x="360" y="340" text-anchor="middle" font-size="8.5" font-weight="500" fill="#4338ca">State vs Strategy — same delegation mechanism, different driver</text>
+  <text x="360" y="356" text-anchor="middle" font-size="8" fill="#4338ca">State: internal lifecycle event drives transition · mode constrains available actions · LangGraph typed state</text>
+
+  <!-- Stochasticity delta -->
+  <line x1="360" y1="364" x2="360" y2="380" stroke="#ccc" stroke-width="0.75" stroke-dasharray="3,2"/>
+  <rect x="30" y="380" width="660" height="72" rx="3" fill="#fffbeb" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="398" text-anchor="middle" font-size="9.5" font-weight="500" fill="#92400e">⚠  Stochasticity Delta — two agentic extensions</text>
+  <line x1="50" y1="404" x2="670" y2="404" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="360" y="418" text-anchor="middle" font-size="8.5" fill="#78350f">1. Transition triggers may be stochastic — quality judge assessing reflection need may decide differently on same output</text>
+  <text x="360" y="432" text-anchor="middle" font-size="8.5" fill="#78350f">2. State loop risk — oscillation between ExecutingState and ErrorRecoveryState · circuit breaker = bounded loop limit</text>
+  <text x="360" y="446" text-anchor="middle" font-size="8" fill="#b45309">Production validation: Control Layer with state machines is first-class architecture requirement (Alenezi 2026; Arunkumar et al. 2026)</text>
+
+  <!-- Composability -->
+  <line x1="360" y1="452" x2="360" y2="468" stroke="#eee" stroke-width="0.75"/>
+  <rect x="50" y="468" width="620" height="28" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="360" y="486" text-anchor="middle" font-size="8.5" fill="#6b7280">Composes with: Strategy · Decorator · Command · Memento · Observer · Template Method</text>
+
+</svg>

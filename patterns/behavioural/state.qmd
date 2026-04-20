@@ -1,0 +1,123 @@
+# State {#sec-state}
+
+::: {.pattern-category}
+Behavioural · Pattern 14 of 14
+:::
+
+::: {.gof-box}
+Allow an object to alter its behaviour when its internal state changes. The object will appear to change its class.
+
+::: {.gof-source}
+@gamma1994design, p. 305
+:::
+:::
+
+## The Translation Argument
+
+The State pattern solves a mode management problem. When a context object must behave differently depending on its current state — and when encoding that variation as conditional logic produces an unmaintainable tangle of `if-state == A` branches — State encapsulates each mode as its own object implementing a common interface. The context delegates behaviour to its current state object. Transitioning between modes means swapping the state object. The conditional logic is eliminated; the context's behaviour changes transparently as it moves through its lifecycle.
+
+Before establishing the agentic mapping, the relationship between State and Strategy deserves explicit statement because the two patterns are structurally identical in GoF. Both involve a context holding a reference to an interchangeable object implementing a common interface. The difference is intent and what drives the swap:
+
+**Strategy** — the swap is driven externally. The client or context selects a reasoning approach based on task characteristics. The strategies are interchangeable algorithms. There is no concept of lifecycle or transitions between strategies; `ReActStrategy` does not transition to `ReflectionStrategy`.
+
+**State** — the swap is driven internally by state transitions. The context moves through a defined lifecycle. States may trigger their own transitions. The progression is meaningful — the context has modes with different behavioural constraints.
+
+The concrete diagnostic: if `StateA` can transition to `StateB` based on internal logic, it is State. If the swap is always triggered externally by the client, it is Strategy.
+
+In production agentic systems this distinction maps onto a recognised architectural separation. Alenezi [-@alenezi2026prompt] identifies a dedicated **Control Layer** in the reference architecture for LLM-based agents — sitting between the LLM reasoning core and the tool and memory layers — that implements "state machines, retry and backoff logic, and circuit breakers." The state machine is not embedded in the reasoning component; it occupies a separate layer that enforces what the agent can do in each mode, when it can transition, and what failure modes trigger what recovery behaviour. This separation of cognition from control flow is, Alenezi argues, the central architectural contribution of production agentic systems.
+
+Arunkumar et al. [-@arunkumar2026agentic] describe the same separation under the name **flow engineering**: production systems model execution as a state machine where nodes represent tool calls or LLM invocations and edges represent permissible transitions. LangGraph operationalises this by treating agent execution as graph traversal with explicit state persistence, typed state updates at specific transition points, and guard nodes that enforce permissibility before transitions are allowed. The pattern name may not be used, but the structure is identical to GoF State.
+
+Three state machine instantiations in agentic AI are architecturally significant:
+
+**Agent execution mode** — the agent moves through operational modes during a session. Each mode constrains what actions are available, what tools can be called, and what resources are allocated. Transitions are triggered by internal events: task receipt, tool call completion, guardrail trigger, HITL activation, error detection.
+
+**Session lifecycle** — the `ConversationOrchestrator` moves through coordination states from initialisation through active routing to suspension and termination. Each state has different behaviours: `InitialisingState` validates consent and loads context; `AwaitingAgentState` holds coordination until an async agent completes; `SuspendedState` captures a Memento and halts.
+
+**Circuit breaker state** — adapted from distributed systems engineering. When error rates spike or unsafe action sequences are detected, the agent transitions to a degraded or halted state rather than continuing. This is the State pattern's most safety-critical instantiation — and the one most explicitly validated in production platform designs [@alenezi2026prompt].
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Context | `AgentRunner`, `ConversationOrchestrator` | Holds a reference to the current state object. Delegates behaviour to it. Transitions by swapping the state object. |
+| State | `AgentState` interface | Defines the behaviour interface for each mode: `execute(task)`, `handleError()`, `canInvokeTool(tool)`. |
+| Concrete State | `IdleState`, `PlanningState`, `ExecutingState`, `ReflectingState`, `WaitingForHumanState`, `ErrorRecoveryState` | Each implements mode-specific behaviour and permissibility constraints. May trigger its own transitions. |
+| Transition Event | Tool completion, guardrail trigger, HITL activation, error detection | The condition that triggers a state swap. May be deterministic or stochastic. |
+
+: GoF roles translated to the agentic mode management and control layer context {#tbl-state-roles}
+
+The responsible AI implication is direct. State machines make agent behaviour auditable in a way that conditional logic does not. If every state transition is a logged event — the prior state, the trigger condition, the new state, the timestamp — the agent's complete behavioural trace is reconstructable from the state log. Combined with Command's provenance and Memento's snapshots, State completes the auditability infrastructure: you can reconstruct not just what actions were taken but what mode the agent was in when it took them, and what mode constraints were active.
+
+## The Six Execution States
+
+**IdleState** — the agent is waiting for a task. Minimal resource allocation. No tool calls permitted. Transitions to `PlanningState` on task receipt or to `ExecutingState` if the task is simple enough to execute directly.
+
+**PlanningState** — the agent is constructing a plan before acting. Only planning tools are available — no side-effecting execution tools. The agent is building a structured intent. Transitions to `ExecutingState` when the plan is complete, or back to `IdleState` if the task is rejected.
+
+**ExecutingState** — the agent is running tool calls against a plan or a direct task. Full tool access within the permissions granted by the `ToolRegistryFacade`. Transitions to `ReflectingState` after output generation, to `ErrorRecoveryState` on guardrail trigger or tool failure, to `WaitingForHumanState` when the `HITLDecorator` activates.
+
+**ReflectingState** — the agent is critiquing and revising its own output. This is the `ReflectionDecorator`'s activation mode, made explicit in the state machine. Only reflection operations are available. Transitions back to `ExecutingState` if revision is needed, or to `IdleState` if output is accepted.
+
+**WaitingForHumanState** — the `HITLDecorator` has routed an output to a human reviewer queue. The agent is suspended. No new tool calls. No new outputs. Transitions to `ExecutingState` on approval, to `ErrorRecoveryState` on rejection.
+
+**ErrorRecoveryState** — a tool call failed, a guardrail triggered, or a circuit breaker activated. The agent is running recovery logic — assessing what went wrong, deciding whether to retry, modify, or escalate. Transitions back to `ExecutingState` on recovery, to `WaitingForHumanState` if the recovery requires human judgement, or to `IdleState` if recovery is impossible and the task must be abandoned.
+
+::: {.callout-note .callout-tension}
+## State vs Strategy — the concrete distinction
+
+In NLI, `AgentRunner` substituting `PlanningStrategy` for `ReActStrategy` mid-execution is **Strategy** — the client triggers the swap externally based on output quality. The agent's reasoning approach changes.
+
+`AgentRunner` transitioning from `ExecutingState` to `WaitingForHumanState` because the `HITLDecorator` activated is **State** — an internal event triggers the transition. The agent's operational mode changes. The set of available actions changes. The agent cannot issue new outputs until it receives a human verdict.
+
+Both happen in NLI. Both use the same delegation mechanism. The distinction is whether the transition is driven internally by the agent's lifecycle or externally by a reasoning selection decision.
+:::
+
+## The Stochasticity Delta {#sec-state-delta}
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta
+
+**State transitions may be stochastic.** In GoF, transitions are triggered by deterministic conditions — a counter reaches a threshold, a flag is set. In agentic AI, a transition from `ExecutingState` to `ReflectingState` might be triggered by a quality judge assessing whether the current output needs revision. That assessment is probabilistic. The same output may trigger a reflection cycle on one run and not on another. Rule-based transition conditions avoid this but sacrifice contextual sensitivity. The choice between deterministic and stochastic transition triggers at each state boundary is an explicit architectural decision, not an implementation detail.
+
+**State loop risk is real.** In GoF, deterministic transitions guarantee that the machine will not oscillate between states indefinitely. In agentic AI, an agent may oscillate between `ExecutingState` and `ErrorRecoveryState` if the recovery judge is poorly calibrated — each execution triggers another guardrail, each recovery attempt triggers another execution. Production platforms explicitly address this with bounded loop limits and circuit breakers [@alenezi2026prompt; @arunkumar2026agentic]. The circuit breaker is itself a state transition: when error rates exceed a threshold, the agent transitions to a halted state that cannot re-enter `ExecutingState` without explicit external reset. This prevents unbounded agentic behaviour — one of the primary governance requirements for production deployment.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-state-minimal) shows the six execution states, their transitions, the Strategy contrast, and the stochasticity delta covering stochastic transitions and loop risk.
+
+![State pattern — structural diagram. Six execution states with transition events, the Control Layer framing from production reference architectures, the Strategy vs State distinction, and the stochasticity delta covering stochastic transition triggers and circuit breaker loop prevention.](../../figures/state-minimal.svg){#fig-state-minimal}
+
+## Canonical Example — NLI AgentRunner Control Layer
+
+In NLI, the `AgentRunner`'s state machine implements the Control Layer described by Alenezi [-@alenezi2026prompt] — the architectural separation between LLM reasoning and execution control. The state machine sits between the LLM cognitive core and the tool and memory layers. It enforces what the agent can do in each mode, not what it reasons about.
+
+A typical session with the `PlannerCoachAgent` proceeds through the following states. The agent begins in `IdleState`, awaiting a task from the `ConversationOrchestrator`. On task receipt it transitions to `PlanningState` — the `ToolRegistryFacade` constrains available tools to planning operations only; no data writes, no external API calls with side effects. The agent constructs a study plan. On plan completion it transitions to `ExecutingState` — full tool access is restored within the agent's permission scope. It retrieves the student's performance data, wellness profile, and prior session notes. Output generation completes and the state transitions to `ReflectingState` — the `ReflectionDecorator` is activated, the agent critiques and revises the plan through one cycle. The revised plan passes the quality judge and the agent transitions to `IdleState` pending the student's response.
+
+If the student's session involves health data that triggers the `HITLDecorator`, the agent transitions from `ExecutingState` to `WaitingForHumanState`. The Command record for that output is logged with the state transition event. The Mediator is notified. The agent issues no further outputs until the human reviewer returns a verdict. On approval, it transitions back to `ExecutingState`. On rejection, it transitions to `ErrorRecoveryState`, assesses what produced the flagged output, and either adjusts its approach or transitions to `WaitingForHumanState` again for human guidance on how to proceed.
+
+Throughout, every state transition is logged as a Command record with the triggering event, the prior state, the new state, and the timestamp. The LangGraph graph traversal that implements this in practice — with typed state objects, explicit transition guards, and checkpoints at each state boundary [@arunkumar2026agentic] — is the production instantiation of the GoF State pattern in the NLI codebase.
+
+## Composability {#sec-state-composability}
+
+**Strategy** is the explicit contrast pattern. State for lifecycle mode management driven by internal events; Strategy for reasoning algorithm selection driven by external task characteristics. An agent in `ExecutingState` may use any of several strategies — Strategy determines which reasoning approach runs; State determines what actions are available while it runs.
+
+**Decorator** interacts with the state machine at specific transition points. `HITLDecorator` activation triggers the transition to `WaitingForHumanState`. `GuardrailDecorator` blocking an output triggers the transition to `ErrorRecoveryState`. The decorator stack and the state machine are complementary safety layers — Decorator adds cross-cutting behaviour, State enforces mode-specific permissibility.
+
+**Command** logs state transitions as provenance events. Every transition — prior state, trigger, new state, timestamp — is captured as a Command record in EDP1. The state log is part of the agent's complete behavioural trace, making mode constraints at the time of any action auditable.
+
+**Memento** captures state as part of execution checkpoints. When the `AgentRunner` captures an `ExecutionCheckpoint` before a `MacroCommand`, the current `AgentState` object is part of the snapshot. Rollback via Memento restores not just the accumulated context but the operational mode the agent was in.
+
+**Observer** watches state transition events. A monitoring dashboard, a session health observer, and the audit log all register for state transition notifications — particularly transitions to `ErrorRecoveryState` and `WaitingForHumanState`, which signal conditions requiring attention.
+
+**Template Method** describes the state machine's processing skeleton. The fixed structure is: receive event, evaluate transition condition, transition if permissible, execute entry behaviour for the new state, execute exit behaviour for the prior state. The pluggable steps are the transition conditions and the entry/exit behaviours.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Strategy</strong> — algorithm selection vs mode management</span>
+<span class="ctag"><strong>Decorator</strong> — activates state transitions</span>
+<span class="ctag"><strong>Command</strong> — transitions logged as provenance</span>
+<span class="ctag"><strong>Memento</strong> — state captured in checkpoints</span>
+<span class="ctag"><strong>Observer</strong> — transition events observable</span>
+<span class="ctag"><strong>Template Method</strong> — state machine processing skeleton</span>
+:::
