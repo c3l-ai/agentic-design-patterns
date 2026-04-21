@@ -1,0 +1,120 @@
+# Template Method {#sec-template-method}
+
+::: {.pattern-category}
+Behavioural · Pattern 8 of 14
+:::
+
+::: {.gof-box}
+Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps of an algorithm without changing the algorithm's structure.
+
+::: {.gof-source}
+@gamma1994design, p. 325
+:::
+:::
+
+## The Translation Argument
+
+The Template Method pattern solves a structural invariance problem. When a process has a fixed sequence of steps — and when individual steps need to vary across implementations while the sequence itself must remain constant — Template Method captures the skeleton in an abstract class and defers the variable steps to subclasses. The invariant is the sequence. The variant is what happens at each step. Subclasses can specialise the steps but cannot reorder them.
+
+Before establishing the agentic mapping, the relationship between Template Method and Strategy deserves explicit statement. Both achieve algorithmic flexibility but through opposite mechanisms:
+
+**Template Method** — variation through inheritance. The skeleton is fixed in the abstract class; subclasses override specific steps. The algorithm structure cannot be replaced — only individual steps can be specialised.
+
+**Strategy** — variation through composition. The algorithm is entirely replaced at runtime. The context delegates to whichever strategy object is currently active.
+
+In agentic AI both appear and they compose naturally. The agent execution loop is Template Method — its sequence cannot be reordered, only individual steps specialised. The reasoning approach within that loop is Strategy — it can be entirely substituted at the appropriate hook point. Template Method defines the AgentRunner's structure; Strategy defines what runs within it.
+
+Three agentic instantiations exhibit the structural invariance that Template Method addresses:
+
+**The agent execution loop** is the strongest and most direct mapping. The generic agent loop described by Alenezi [-@alenezi2026prompt] as Algorithm 1 — receive task, build context, plan step, check policy, execute tool or return answer, update state, write memory, check stop condition — is a Template Method. The fixed skeleton is the production architecture's core contribution: separating the cognition from the control flow. Every concrete agent inherits this skeleton and specialises individual steps. `PersonalDataQAAgent` specialises `buildContext()` to retrieve only data query context. `PlannerCoachAgent` specialises `planStep()` to invoke `PlanningStrategy`. `ExperienceCaptureAgent` specialises `shouldStop()` to check reflection quality. None can reorder the steps.
+
+**The eval pipeline skeleton** follows a fixed sequence invariant across all agent types: collect interaction traces → run judge suite → aggregate verdicts → produce summary metrics → flag anomalies for escalation. The skeleton is invariant; the pluggable steps are which judges run and how verdicts are aggregated. Abstract Factory produces the judges; Template Method describes the skeleton they run within.
+
+**The chain processing skeleton** — each handler in a Chain of Responsibility follows the same fixed sequence: receive request, assess handleability, handle or pass, attach context if passing. This is a Template Method applied to individual chain links. The skeleton is invariant; the `canHandle()` and `handle()` steps are specialised per handler.
+
+The four GoF roles translate as follows:
+
+| GoF Role | Agentic Equivalent | Responsibility |
+|---|---|---|
+| Abstract Class | `AbstractAgentLoop`, `AbstractEvalPipeline` | Defines the fixed skeleton. Implements invariant steps directly. Declares hook methods that subclasses must specialise. |
+| Template Method | `run()`, `evaluate()`, `process()` | The skeleton method. Calls abstract and hook methods in fixed sequence. Cannot be overridden. |
+| Abstract Hook | `buildContext()`, `planStep()`, `shouldStop()`, `runJudges()` | The pluggable steps. Declared abstract in the base class; implemented in concrete subclasses. |
+| Concrete Class | `PersonalDataQAAgent`, `PlannerCoachAgent`, `TaskAgentEvalPipeline` | Specialises the hook methods for a specific agent type or eval configuration. Inherits the invariant skeleton. |
+
+: GoF roles translated to the agentic fixed-skeleton execution context {#tbl-template-roles}
+
+The responsible AI implication is structural. Because the policy check step — `violatesPolicy(plan, policies)` — is an invariant part of the agent loop skeleton, no concrete agent can bypass it. A subclass can specialise how it builds context or how it decides to stop, but it cannot remove the policy gate from the sequence. This is the same governance-by-construction argument made for Builder's mandatory `configureEvals()` step: the Template Method makes compliance architecturally impossible to skip, not just conventionally expected.
+
+## The Agent Loop as Template Method
+
+The generic agent loop from production reference architectures [@alenezi2026prompt] maps directly to GoF Template Method structure:
+
+```
+AbstractAgentLoop.run(goal, tools, memory, policies):
+  1. s ← initState(goal)                    ← invariant
+  2. for k = 1 to Kmax:                     ← invariant
+  3.   c ← buildContext(s, memory, policies) ← HOOK — specialised per agent
+  4.   p ← planStep(llm, c)                 ← HOOK — Strategy called here
+  5.   if violatesPolicy(p, policies):       ← invariant
+  6.     p ← repairPlan(p, policies)        ← HOOK — specialised per agent
+  7.   if isToolCall(p):                     ← invariant
+  8.     r ← executeTool(p, tools)          ← invariant — via ToolRegistryFacade
+  9.     s ← updateState(s, p, r)           ← invariant
+  10.    writeMemory(memory, s, p, r)        ← invariant
+  11. else: return finaliseAnswer(p, s)      ← HOOK — specialised per agent
+  12. if shouldStop(s): return summarise(s)  ← HOOK — specialised per agent
+  13. return failSafe(s)                     ← invariant — graceful degradation
+```
+
+The invariant steps — policy check, tool execution via typed Facade, state update, memory write — are identical across all concrete agents. The hook steps — context building, planning, repair logic, answer finalisation, stop condition — are where agent specialisation happens. A `PersonalDataQAAgent` and a `PlannerCoachAgent` share the same loop structure but implement entirely different context building and stop conditions.
+
+## The Stochasticity Delta {#sec-template-delta}
+
+::: {.callout-warning .callout-delta}
+## Stochasticity Delta — one agentic extension
+
+**Hook methods may be stochastic.** In GoF, Template Method's hook methods are deterministic functions — a subclass override always produces the same output for the same input. In agentic AI, hook methods may involve LLM calls. `planStep()` is a probabilistic inference: the same context may produce a different plan on different runs. `shouldStop()` may involve a quality judge whose assessment is probabilistic. The skeleton is fixed — the sequence is invariant — but the behaviour at each hook is stochastic. Template Method guarantees structure; it cannot guarantee outcomes.
+
+This has a practical consequence: the eval suite must cover not just the skeleton's invariant steps but each hook method independently. A `planStep()` hook that is well-implemented for one task distribution may fail for another. Because the skeleton hides which hook produced a bad outcome, hook-level eval coverage is essential for diagnosing failures in the agent loop.
+:::
+
+## Structural Diagram
+
+The minimal diagram (@fig-template-minimal) shows the abstract agent loop skeleton with invariant steps and hook methods, two concrete agent specialisations, the Strategy composition point, and the stochasticity delta.
+
+![Template Method pattern — structural diagram. Abstract agent loop skeleton with invariant steps and hook methods annotated. Two concrete agent specialisations shown. Strategy as pluggable planStep() hook. Stochastic hook methods and eval coverage requirement in delta.](../../figures/template-method-minimal.svg){#fig-template-method-minimal}
+
+## Canonical Example — NLI Agent Loop and Eval Pipeline
+
+In NLI, the `AbstractAgentLoop` is the base class for all interaction-layer agents. Its `run()` method implements the fixed sequence validated by production reference architectures [@alenezi2026prompt]. The sequence cannot be modified by any concrete agent.
+
+The `PersonalDataQAAgent` specialises three hooks. Its `buildContext()` retrieves only data query context — the relevant data products the student has consented to share — and no planning history. Its `finaliseAnswer()` formats results as structured data responses rather than narrative prose. Its `shouldStop()` checks whether the query has been fully answered against the retrieved data.
+
+The `PlannerCoachAgent` specialises the same three hooks differently. Its `buildContext()` retrieves the student's full session history, prior plans, wellness indicators, and metacognitive state. Its `planStep()` hook invokes `PlanningStrategy` — the full multi-step planning cycle before any execution. Its `shouldStop()` checks whether the produced plan meets the quality threshold in the `EvalThresholdRegistry` singleton.
+
+Both agents are governed by identical invariant steps: the policy check at step 5 runs for both; tool execution flows through the `ToolRegistryFacade` for both; memory writes follow the same schema for both. The structural invariance is the governance guarantee.
+
+The eval pipeline Template Method follows the same logic. `AbstractEvalPipeline.evaluate(trace)` defines the fixed skeleton: collect trace → run judges → aggregate → summarise → flag. `TaskAgentEvalPipeline` specialises `runJudges()` to call the `TaskAgentEvalFactory`'s judge suite. `OrchestratorEvalPipeline` specialises `runJudges()` to call the `OrchestratorEvalFactory`'s judge suite. The aggregation and flagging steps are identical across both.
+
+## Composability {#sec-template-composability}
+
+**Strategy** is the explicit complement. Template Method defines the `AgentRunner`'s execution skeleton; Strategy is the pluggable reasoning step at the `planStep()` hook. The two patterns divide algorithmic responsibility: Template Method owns the sequence; Strategy owns the approach at the point of reasoning.
+
+**Abstract Factory** connects through the eval pipeline skeleton. The `runJudges()` hook calls the factory-produced judge suite. Template Method provides the evaluation structure; Abstract Factory provides the evaluation instruments.
+
+**Observer** can watch hook method completions as events. Each step completion — `buildContext()` done, `planStep()` complete, `executeTool()` returned — is an observable event. Registered Observers receive step-level notifications without the skeleton knowing about them.
+
+**Command** encapsulates each hook method execution. The `planStep()` hook produces a Command record. The `executeTool()` hook produces a Command record. Template Method's skeleton is the structure within which Command records are generated.
+
+**State** governs which hook methods are available. An agent in `PlanningState` can only execute the `planStep()` hook — execution hooks are blocked. An agent in `WaitingForHumanState` cannot advance through the loop at all. The State machine constrains which Template Method steps are permissible at any point.
+
+**Chain of Responsibility** implements the `violatesPolicy()` step. The policy check hook delegates to the API pipeline's CoR chain, which routes the plan through authentication, validation, rate limiting, and consent handlers before returning a policy verdict.
+
+::: {.composability-tags}
+<span class="ctag"><strong>Strategy</strong> — pluggable planStep() hook</span>
+<span class="ctag"><strong>Abstract Factory</strong> — judge suite at runJudges() hook</span>
+<span class="ctag"><strong>Observer</strong> — hook completions as events</span>
+<span class="ctag"><strong>Command</strong> — hook executions as provenance records</span>
+<span class="ctag"><strong>State</strong> — constrains available hooks by mode</span>
+<span class="ctag"><strong>Chain of Responsibility</strong> — implements policy check hook</span>
+:::
