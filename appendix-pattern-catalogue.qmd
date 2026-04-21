@@ -1,0 +1,75 @@
+# Pattern Catalogue Quick Reference {#sec-appendix}
+
+The following tables provide a condensed reference for all fifteen patterns in this catalogue. Each entry gives the pattern's category, its primary agentic role, its most distinctive stochasticity delta property, and its key composability relationships. Full entries are in the corresponding chapters.
+
+---
+
+## Creational Patterns
+
+| Pattern | Agentic Role | Stochasticity Delta | Key Composability |
+|---|---|---|---|
+| **Abstract Factory** | Eval suite generation per agent type. Each factory produces a family of judges — `OutputJudge`, `ToolUseJudge`, `SafetyJudge` — for a specific agent type. `HumanJudge` is the fallback product. | Judge products are non-deterministic LLM calls. Require their own meta-evaluation layer. | Command (EDP2 attached to EDP1 records) · Observer (verdicts trigger EDP3) · Memento (eval versions captured in snapshots) |
+| **Builder** | Multi-agent pipeline assembly. `PipelineDirector` enforces construction sequence; concrete builders specialise each step. `configureEvals()` is mandatory — eval integration is a construction-time guarantee. | Product agents are behaviourally non-deterministic despite structural coherence. Conditional construction required when connectors fail. | Abstract Factory (eval suite at construction) · Memento (construction rollback) · Singleton (schema catalog consulted during assembly) |
+| **Singleton** | Two classes: Class A configuration singletons (`SafetyConstraintStore`, `ToolSchemaCatalog`, `EvalThresholdRegistry`) and Class B active data product singletons (`LearnerWellnessProfile`, `SharedSessionState`). | Distributed systems problem — true singleton semantics require coordination across containers. Versioning required for hot updates. `SafetyConstraintStore` unreachable → halt, not fallback. | Decorator (GuardrailDecorator reads SafetyConstraintStore) · Command (schema versions captured in provenance) · Observer (Class B singletons as Subjects) |
+
+---
+
+## Structural Patterns
+
+| Pattern | Agentic Role | Stochasticity Delta | Key Composability |
+|---|---|---|---|
+| **Adapter** | Three layers: Tool layer (canonical `ToolInput/ToolOutput` over heterogeneous APIs), Model layer (canonical `LanguageModel` over providers), Data layer (canonical `DataProduct` schema over custodial domain sources). | Tool layer: schema drift — silent misinterpretation after API changes. Model layer: distributional non-equivalence — providers not interchangeable despite shared interface. Data layer: semantic interpretation risk — LLM-driven mapping is stochastic. | Facade (Facade orchestrates, Adapter translates) · Command (stable interfaces make Commands replayable) · Strategy (all strategies call through Adapters) |
+| **Decorator** | Five wrappers: `GuardrailDecorator` and `LoggingDecorator` (always active), `HITLDecorator` (active in regulated contexts), `RateLimitDecorator` and `ReflectionDecorator` (context-specific). Canonical ordering: Guardrail → Logging → HITL → RateLimit → Reflection → Base. | `ReflectionDecorator` is stochastic — may produce worse output than base agent. Convergence check required. Ordering is a safety constraint, not a style preference. Proxy absorbed here. | Singleton (GuardrailDecorator reads SafetyConstraintStore) · Command (LoggingDecorator produces EDP1) · Composite (wraps leaf nodes independently) |
+| **Facade** | Three facades: `DataProductAccessAgent` (DataZone — accountability boundary for consent), `InferenceFacade` (LLM inference — orchestrates provider Adapters), `ToolRegistryFacade` (tool execution — reads ToolSchemaCatalog Singleton). | Ambiguous subsystem states require escalation logic — uncertain consent cannot propagate as a simple error. Facade is the primary accountability boundary and natural EDP1 instrumentation point. | Adapter (Facade orchestrates, Adapter translates) · Decorator (LoggingDecorator wraps Facade for observability) · Mediator (explicit contrast — one-directional vs bidirectional) |
+| **Composite** | Three levels: agent tree (`ConversationOrchestrator` over leaf agents), pipeline tree (`ReflectivePipeline` over sub-pipelines), eval suite tree (`AgentEvalSuite` over individual judges). All share the `Agent`/`Pipeline`/`Evaluator` component interface. | Result aggregation at composite nodes is a stochastic reasoning task, not mechanical aggregation. Failure propagation is silent — quality gates required at each level. | Builder (constructs composite trees) · Mediator (explicit contrast — hierarchical ownership vs peer coordination) · Abstract Factory (eval trees mirror agent trees) |
+
+---
+
+## Behavioural Patterns
+
+| Pattern | Agentic Role | Stochasticity Delta | Key Composability |
+|---|---|---|---|
+| **Template Method** | Fixed agent loop skeleton. Invariant steps: initState, policy check, tool execution, state update, memory write, failSafe. Hook steps (specialised by subclass): buildContext, planStep, repairPlan, finaliseAnswer, shouldStop. Policy check invariant — no concrete agent can bypass it. | Hook methods may be stochastic — `planStep()` and `shouldStop()` involve LLM calls. Skeleton guarantees sequence; cannot guarantee outcomes. Hook-level eval coverage essential. | Strategy (pluggable planStep() hook) · Chain of Responsibility (policy check hook delegates to CoR chain) · State (constrains available hooks by mode) |
+| **Strategy** | Five interchangeable reasoning strategies: `ReActStrategy`, `ReflectionStrategy`, `PlanningStrategy`, `ToolUseStrategy`, `MultiAgentStrategy`. Selected and substituted by `AgentRunner` at runtime. Factory Method absorbed here. | Selection may itself be stochastic if LLM-driven. Mid-execution substitution requires explicit context handoff via Memento. | Template Method (planStep() hook) · Memento (context handoff on substitution) · Decorator (stack wraps strategies) |
+| **Chain of Responsibility** | Three instantiations: API request pipeline (Auth → Validation → RateLimit → Consent → Routing — all deterministic), safety escalation chain (AutomatedCheck → ModerationAgent → HumanReview → EscalationAgent — mixed), dynamic capability routing (agents register capabilities; chain finds first capable handler). CoR where decoupling is genuine — not for fixed known agent sets. | LLM-based handlers stochastic — same request may be handled at different chain levels on different runs. Partial handling must attach named context explicitly. | Mediator (explicit contrast — linear decoupled vs centralised coordinated) · Observer (SafetyMonitor triggered by CoR escalation) · Template Method (chain processing skeleton) |
+| **Command** | Tool invocations and data accesses as governed data assets. Three concrete types: `ToolInvocationCommand`, `DataAccessCommand`, `MacroCommand` (workflow-level). Carries full provenance: agentId, toolName, inputs, output, timestamp, schemaVersion, decoratorStack, sessionId, mementoRef, evalVerdict. EDP1 = Command Log. | Commands not idempotent — replay produces different results for LLM-based tools. Rollback via Memento, not direct undo. Pre-execution validation may be stochastic if LLM safety judge involved. | Memento (mementoRef links action to state snapshot) · Abstract Factory (EDP2 verdicts attached post-execution) · Observer (CommandLog as Subject) |
+| **Observer** | Three Subjects: `CommandLog` (EDP1 — notify on Command append), `LearnerWellnessProfile` (notify on observation write), `EvalVerdictStore` (EDP2 — notify on verdict attach). Push model for time-sensitive events; pull model for longitudinal analysis. Closes the eval data product loop. | Observer callbacks may be stochastic — LLM-based Observers produce different analyses on identical notifications. Notification ordering non-deterministic in distributed systems — timestamps and sequence IDs required. | Command (CommandLog as primary Subject) · Abstract Factory (EDP2 verdicts trigger EDP3 via Observer) · Chain of Responsibility (SafetyMonitor Observer triggers escalation chain) |
+| **Mediator** | Hub-and-spoke multi-agent coordination. `ConversationOrchestrator` knows all interaction-layer agents; agents know only the Mediator. Routes tasks, passes explicit context with handoff contracts, synthesises outputs, enforces session-level safety invariants. Industry hub-and-spoke = Mediator (not Composite). A2A protocol substrate. | Intent routing may be stochastic. Output synthesis is stochastic. Silent coordination failure without explicit handoff contracts — production evidence confirms weeks of debugging from implicit state. | Composite (explicit contrast — peer coordination vs hierarchical ownership) · Command (coordinated interactions as Command records) · Observer (session event subscriptions) |
+| **Memento** | Three instantiations: execution checkpointing (graph state before MacroCommand — enables rollback; LangGraph thread checkpoints implement this), strategy context handoff (working state on strategy substitution — enables continuity), session state preservation (Mediator captures at coordination milestones — enables resumption). | Validity window — schema drift makes old checkpoints incompatible; `schemaVersions` metadata required. LLM state not restorable — structural state only. Rollback gives valid starting point, not deterministic replay. | Command (mementoRef is the structural link — together = agentic rollback) · Strategy (context handoff on substitution) · Singleton (config versions captured in snapshots) |
+| **State** | Agent execution mode management in the Control Layer (separates cognition from execution). Six states: `IdleState`, `PlanningState`, `ExecutingState`, `ReflectingState`, `WaitingForHumanState`, `ErrorRecoveryState`. Circuit breaker: transition to halted state on error threshold. LangGraph typed state implements this. | Transition triggers may be stochastic — quality judge assessing reflection need may decide differently on same output. State loop risk — circuit breaker enforces bounded loops. Production requirement per Alenezi (2026) and Arunkumar et al. (2026). | Strategy (State determines available hooks; Strategy determines reasoning approach) · Decorator (HITLDecorator activates WaitingForHumanState) · Template Method (State constrains available hooks by mode) |
+
+---
+
+## Excluded Patterns
+
+| Pattern | Category | Exclusion Rationale |
+|---|---|---|
+| Flyweight | Irrelevant concern | Memory efficiency under high object instantiation volume is not a concern in agentic AI. Expensive resources are API calls and token budgets, not object memory. |
+| Prototype | Irrelevant concern | Agent instances are configured, not cloned. Instantiation cost and copy semantics are not meaningful for LLM-based agents. |
+| Iterator | Irrelevant concern | Absorbed by language-level primitives and internal logic of Composite (tree traversal) and Command Log (query interface). |
+| Factory Method | Absorbed concern | Creation and execution collapse in agentic AI — selecting a strategy is itself a reasoning act. Absorbed into Strategy's `selectStrategy()` logic. |
+| Bridge | Absorbed concern | Reasoning abstraction variation covered by Strategy; implementation variation covered by Model Layer Adapter. Upfront-design assumption does not hold. |
+| Proxy | Absorbed concern | Decorator/Proxy distinction collapses — every access control decision is a processing step. HITL concern absorbed into `HITLDecorator`. Documented in Decorator entry. |
+| Visitor | Absorbed concern | Reactive case covered by Observer; evaluation case covered by Abstract Factory judges. Double-dispatch mechanism has no meaningful agentic equivalent. |
+| Interpreter | Pre-solved concern | The LLM is the interpreter. Tool schema validation — the only relevant case — handled by `ToolSchemaCatalog` Singleton and `ToolRegistryFacade`. |
+
+: 8 excluded patterns from the original 23. 15 + 8 = 23. {#tbl-appendix-excluded}
+
+---
+
+## Pattern Relationships at a Glance
+
+The following pairs have the most structurally significant relationships in the catalogue:
+
+| Pair | Relationship |
+|---|---|
+| **Command + Memento** | Agentic rollback infrastructure. Command identifies the problem; Memento provides the restoration point. `mementoRef` is the structural link. |
+| **Abstract Factory + Observer** | EDP1 → EDP2 → EDP3 pipeline. Abstract Factory produces judges; Observer connects verdict events to downstream consumers. |
+| **Template Method + Strategy** | Agent loop architecture. Template Method owns the fixed skeleton; Strategy owns the pluggable `planStep()` hook. |
+| **Mediator + Composite** | Multi-agent coordination distinction. Mediator for peer coordination without ownership; Composite for hierarchical ownership with accountability. |
+| **Decorator + Singleton** | Safety enforcement layer. `GuardrailDecorator` reads `SafetyConstraintStore`; the Singleton guarantee means safety constraints are uniform across the fleet. |
+| **Facade + Adapter** | Subsystem access layer. Facade orchestrates complexity; Adapter translates incompatible interfaces. Both appear in the NLI data layer doing different work. |
+| **Builder + Memento** | Resilient construction. Builder assembles pipelines; Memento enables rollback to the last valid construction state on failure. |
+| **Chain of Responsibility + Observer** | Safety escalation. CoR implements the escalation policy; Observer triggers the chain when safety verdicts fall below confidence threshold. |
+
+: Key pattern pairs and their structural relationships {#tbl-appendix-pairs}
