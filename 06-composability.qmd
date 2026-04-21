@@ -1,0 +1,123 @@
+# Composability {#sec-composability}
+
+The fourteen patterns in this catalogue are not a collection of alternatives. They address different concerns at different architectural levels, and the more interesting question is not which pattern to choose but how patterns combine into coherent subsystems. This chapter examines those combinations — the recurring compositions that produce recognisable architectural infrastructure — and the cross-catalogue theoretical observations that only become visible when the patterns are considered as a system rather than individually.
+
+## Patterns as a System
+
+Each pattern entry documents its composability relationships — which other patterns it most directly connects to, and why. Taken together, these relationships describe a network, not a hierarchy. No single pattern sits at the centre. Instead, four composability clusters emerge from the network's structure: each cluster addresses a distinct architectural concern, and each is more powerful than any of its constituent patterns alone.
+
+The clusters are:
+
+- **Eval data product infrastructure** — the accountability and evaluation layer
+- **Rollback and resilience infrastructure** — the state recovery layer
+- **Safety and governance layer** — the compliance enforcement layer
+- **Multi-agent coordination layer** — the execution architecture layer
+
+These are not rigid boundaries. Patterns appear in multiple clusters. The `Command` pattern appears in three. The `Singleton` pattern touches all four. The clusters describe gravitational centres, not exclusive memberships.
+
+## Cluster 1 — Eval Data Product Infrastructure {#sec-composability-eval}
+
+The most theoretically significant composition in the catalogue connects four patterns into a complete, governed evaluation pipeline. The claim that evaluation outputs should be treated as governed data assets — versioned, schematised, owned, and queryable — is a goal without architecture unless these four patterns are in place simultaneously.
+
+**Abstract Factory** defines the evaluation contracts. Each agent type has an associated factory that produces a family of judges — `OutputJudge`, `ToolUseJudge`, `SafetyJudge` — implementing a common `Judge` interface. The factory guarantees that every agent type has an appropriate evaluation suite, assembled consistently and independently of the agents being evaluated. This is EDP2: the judge scores attached to interaction records.
+
+**Command** is the atomic unit of provenance. Every tool invocation, every data access, every reasoning step is encapsulated as a Command object carrying full provenance — agent ID, inputs, outputs, timestamp, active schema versions, decorator stack, session ID. The Command Log accumulates these records as EDP1: the Agent Interaction Trace. The `mementoRef` field on every Command links each record to the state snapshot active when it was created, enabling complete reconstruction of system state at any decision point.
+
+**Observer** is the connective tissue between data products. When the Command Log receives a new record, registered Observers are notified. The eval judge pipeline processes EDP1 records and produces EDP2 verdicts. When the EvalVerdictStore receives a new verdict, registered Observers are notified again — the EDP3 aggregation pipeline produces summary metrics, the safety monitor checks confidence scores, the audit log captures the event. The eval pipeline is event-driven rather than batch-scheduled. Adding a new analysis stage — a new judge type, a new aggregation rule, a new monitoring component — requires only registering a new Observer.
+
+**Memento** provides the state dimension. The `mementoRef` on each Command record is not just a pointer to prior state — it is the mechanism that makes evaluation reproducible. For any Command record in EDP1, you can reconstruct the exact system state when that command executed, re-run the evaluation under those conditions, and assess whether the judgment would change. EDP4 — the gold dataset of human-labelled ground truth — is built by selecting Command records, restoring their Memento snapshots, and curating the subset that are most informative for calibration.
+
+Together these four patterns form the infrastructure described by the eval-as-data-product principle. The pipeline is:
+
+```
+Agent executes → Command → EDP1 (Agent Interaction Trace)
+  ↓ CommandLog.notify() [Observer]
+Abstract Factory judges evaluate → EDP2 (Judge Scores attached to EDP1)
+  ↓ EvalVerdictStore.notify() [Observer]
+EDP3 AggregationPipeline produces → EDP3 (Eval Summary Metrics)
+  ↓ Memento enables → EDP4 (Gold Dataset — curated, labelled, reproducible)
+```
+
+The architecture produces evaluation outputs not as transient signals but as governed data assets — versioned, schematised, and queryable across runs. This meets the standard for accountable agentic deployment. Without all four patterns, some part of the pipeline degrades: Command without Observer produces records that nothing consumes. Observer without Command has nothing meaningful to watch. Abstract Factory without Command has no records to evaluate. Memento without Command provides restoration points without the provenance to understand why restoration was needed.
+
+## Cluster 2 — Rollback and Resilience Infrastructure {#sec-composability-rollback}
+
+The second cluster addresses a concern that agentic systems share with distributed systems generally: things go wrong, states become invalid, and the system must recover without losing accountability.
+
+**Command + Memento** is the catalogue's clearest pairwise composition. Command identifies what happened — which action, which agent, which inputs, at which time, with which outputs. Memento records the system state when it happened. The `mementoRef` field on each Command record is the structural link between them. When rollback is needed: (1) the Command Log identifies the problematic command; (2) the `mementoRef` on that record retrieves the Memento snapshot taken before it executed; (3) the Originator restores its state from the Memento; (4) the problematic command can be re-issued with corrected inputs or the pipeline proceeds without it. Neither pattern alone achieves this. A Command Log without Mementos tells you what went wrong but cannot restore prior state. Mementos without Commands provide restoration points but no structured way to identify which one to restore to or why.
+
+**Strategy** uses Memento for a different purpose — not rollback but continuity. When `AgentRunner` substitutes one reasoning strategy for another mid-execution, the prior strategy's working state is captured as a Memento and passed to the incoming strategy via `receiveContext(memento)`. The incoming strategy does not start from scratch; it inherits everything the prior strategy accumulated. This context handoff mechanism makes strategy substitution coherent rather than disruptive.
+
+**Builder** uses Memento for construction resilience. If a `configureIngestion()` step fails partway through pipeline assembly, the Director can restore the pipeline to its last valid construction state rather than discarding the partially assembled pipeline entirely. Construction becomes transactional.
+
+**Observer** extends the cluster's accountability reach. When rollback occurs — the Originator restores from a Memento — the `MementoStore` notifies registered Observers. The audit log captures the restoration event. The eval pipeline is notified. The monitoring dashboard updates. Rollback is not a silent internal operation; it is an observable, auditable event in the system's behavioural trace.
+
+## Cluster 3 — Safety and Governance Layer {#sec-composability-safety}
+
+The third cluster encodes the responsible AI argument structurally. Safety in this catalogue is not a convention or a policy document — it is an architectural property that emerges from the composition of four patterns.
+
+**Decorator** is the enforcement layer at the agent output boundary. `GuardrailDecorator`, `LoggingDecorator`, and `HITLDecorator` are always active — every agent output passes through them regardless of which agent produced it or which reasoning strategy was used. The decorator ordering is itself a safety constraint: GuardrailDecorator outermost, LoggingDecorator logging only guardrail-approved outputs, HITLDecorator routing health and safeguarding outputs to human review before delivery. The ordering cannot be circumvented by any agent.
+
+**Singleton** provides the uniform reference for safety constraints. `SafetyConstraintStore` is a single authoritative instance — not a local copy, not a cached version, not a per-agent configuration. When safety constraints are updated, all agents in the fleet see the update simultaneously. A `GuardrailDecorator` on any agent reads from the same store. The Singleton guarantee means that safety is uniform across the entire agent collective at all times. A multi-agent system in which different agents hold different safety constraint versions — even briefly — has exploitable gaps.
+
+**Chain of Responsibility** implements the escalation policy. When automated safety checks cannot resolve a flagged output, the escalation chain routes it through `AutomatedSafetyCheck` → `ContentModerationAgent` → `HumanReviewAgent` → `EscalationSafetyAgent`. The policy — resolve at the lowest appropriate level — is encoded in the chain structure itself, not in any individual handler. It is visible, testable, and auditable independently of implementation.
+
+**Facade** enforces accountability at the data access boundary. The `DataProductAccessAgent` Facade validates consent, records lineage, and enforces access for every data product request from every agent. Because all data access flows through a single entry point, consent enforcement is architecturally guaranteed rather than conventionally expected. The Facade is also the natural instrumentation point for the eval data product pipeline: attaching a `LoggingDecorator` to the Facade captures complete data access provenance without any agent modification.
+
+The safety argument that runs through these four patterns is the same in each case: the structure enforces the constraint, not the convention. No agent can bypass the guardrail; no agent can access data without consent validation; no flagged content can skip the escalation chain; no safety constraint can diverge across the fleet. Governance-by-construction is the term for this property — the architecture makes non-compliance structurally impossible rather than merely inadvisable.
+
+## Cluster 4 — Multi-Agent Coordination Layer {#sec-composability-coordination}
+
+The fourth cluster describes how agents are assembled, how they execute, and how they coordinate. It is the most structurally complex cluster because it involves the most patterns.
+
+**Template Method** defines the agent loop skeleton — the invariant sequence that every agent inherits. The sequence cannot be reordered: receive task, build context, plan step, check policy, execute tool, update state, write memory, check stop condition. The policy check is invariant — no concrete agent can skip it. The planning step is a hook — different agents specialise it differently, and Strategy provides the pluggable reasoning approach at that hook.
+
+**Strategy** provides the pluggable reasoning at the `planStep()` hook. Five concrete strategies — ReAct, Reflection, Planning, ToolUse, MultiAgent — implement the same `ReasoningStrategy` interface and are substitutable at runtime without the agent loop knowing which is running. The `AgentRunner` can swap strategies mid-execution when conditions change, using Memento to pass context from the outgoing strategy to the incoming one.
+
+**State** governs what is permissible at each point in the loop. An agent in `PlanningState` cannot call execution tools; the Template Method loop runs but the execution hook is blocked by the State machine. An agent in `WaitingForHumanState` cannot advance through the loop at all. State and Template Method are complementary: Template Method defines the sequence; State defines the permissibility envelope within which the sequence runs.
+
+**Mediator** coordinates the agent collective at the session level. The `ConversationOrchestrator` knows all interaction-layer agents, routes tasks to the appropriate agent, passes explicit context with each delegation, synthesises outputs, and enforces session-level safety invariants including consent state propagation. It is the hub-and-spoke coordinator — the pattern the industry calls orchestrator-worker.
+
+**Composite** structures the pipeline hierarchy. Where Mediator coordinates peers without owning them, Composite structures hierarchical ownership — a `ReflectivePipeline` owns and is responsible for its sub-pipelines. Builder constructs these hierarchies; Composite describes their shape at runtime. The eval suite is also a Composite — `AgentEvalSuite` contains leaf judges whose verdicts aggregate up to a synthesised suite verdict.
+
+The cross-pattern observation in this cluster is the most practically important distinction in the catalogue for system designers: **Mediator and Composite are not alternatives for multi-agent coordination — they address structurally opposite concerns**. Mediator for peer coordination without ownership; Composite for hierarchical ownership with accountability. The industry's conflation of hub-and-spoke with hierarchical conflates these two structural logics and produces systems where accountability for outputs is ambiguous. The pattern catalogue makes the distinction precise.
+
+## Governance by Construction {#sec-composability-governance}
+
+A cross-catalogue observation deserves explicit statement. Four patterns in different parts of the catalogue — Builder, Template Method, Decorator, and Singleton — each enforce a governance requirement structurally rather than conventionally. Together they form an argument about responsible AI deployment that is stronger than any of them makes individually.
+
+**Builder** makes eval suite integration architecturally impossible to skip. The `PipelineDirector`'s `configureEvals()` step is part of the mandatory construction sequence. No pipeline can be assembled without an evaluation layer — not because a policy document says so, but because the Director enforces the sequence.
+
+**Template Method** makes policy checking architecturally impossible to bypass. The `violatesPolicy()` step is invariant in the agent loop skeleton. Every concrete agent inherits it. A subclass can specialise how it builds context or evaluates stopping conditions, but it cannot remove the policy gate from its execution loop.
+
+**Decorator** makes safety enforcement architecturally impossible to circumvent. `GuardrailDecorator` is always-active and outermost. No agent output reaches a client without passing through the safety check — not because the agent is well-intentioned, but because the decorator stack structure guarantees it.
+
+**Singleton** makes safety constraint divergence architecturally impossible. All agents read from the same `SafetyConstraintStore`. Updating the constraint store updates every agent in the fleet simultaneously. A fleet with divergent safety constraints cannot exist as long as the Singleton guarantee holds.
+
+The cumulative effect is what Alenezi [-@alenezi2026prompt] calls governance-by-construction: safety, evaluation, and compliance are woven into the architecture itself, not added as afterthoughts. The architecture becomes a normative specification — a verifiable contract that governs how agents interact with each other and with the world.
+
+## The Stochasticity Delta Compounds {#sec-composability-stochasticity}
+
+The stochasticity delta, documented at the pattern level throughout the catalogue, compounds when patterns compose. This compounding is the most important theoretical observation for anyone building production agentic systems with this catalogue.
+
+A single LLM-based component is stochastic. A Decorator wrapping a stochastic agent is stochastic at two levels — the decorator's own logic (if it involves an LLM) and the agent it wraps. A Mediator synthesising the outputs of multiple stochastic agents via an LLM synthesis step is stochastic at the agent level and at the synthesis level. An Observer callback that runs LLM-based pattern analysis on a Command record produced by a stochastic agent is stochastic at three levels.
+
+This compounding has two practical implications. First, **eval coverage must match composition depth**. An eval suite that covers individual agents but not their compositions will miss failure modes that only emerge at the composition level — a Mediator whose synthesis consistently distorts the correct outputs of its colleagues, a Decorator chain whose combined effect is more conservative than any individual decorator intended. The Composite pattern's observation that the eval tree should mirror the agent tree is the structural solution: every level of composition requires its own evaluation layer, not just the leaves.
+
+Second, **provenance must be composition-aware**. The `mementoRef` on a Command record captures the state before that command executed — but if that command was produced by a composed system, the state includes the outputs of all prior composed components. Tracing a failure to its root cause in a deeply composed system requires following the provenance chain through all layers of composition. The Command Log's full provenance fields — agent ID, decorator stack, session ID, schema versions — are designed to support this.
+
+## The Eval Tree Mirrors the Agent Tree {#sec-composability-eval-tree}
+
+A structural observation that only becomes visible across the Composite and Abstract Factory patterns together: in a well-designed agentic system, the eval suite tree mirrors the agent tree in depth and structure.
+
+Leaf agents have leaf judges — `OutputJudge`, `ToolUseJudge`, `SafetyJudge` — produced by their type-specific eval factory. Composite agents have composite eval suites that include leaf-level judges for each child agent plus a synthesis-quality judge at the composite level. The recursive relationship holds at every level: as the agent composite tree grows deeper, the eval composite tree grows with it.
+
+This is not incidental. It is the mechanism by which eval coverage scales with system complexity without requiring centralised tracking of what needs to be evaluated. The Abstract Factory pattern encodes the mapping: each agent type has a factory, and each factory knows which judge family corresponds to that agent type. Adding a new agent type requires only adding a new factory; the eval tree extends automatically.
+
+The practical implication is that eval coverage gaps are structurally visible. A composite agent whose children have eval suites but the composite node itself does not has a structural gap — the synthesis step is unevaluated. This gap is visible in the eval tree's shape even before a failure occurs.
+
+## The Catalogue as Infrastructure
+
+The fourteen patterns in this catalogue, taken together, describe the infrastructure layer of a governed agentic system. They do not describe business logic, domain knowledge, or user interface. They describe the structural substrate on which those concerns rest — the mechanisms that make a multi-agent system observable, accountable, resilient, and safe.
+
+The case study in @sec-case-study demonstrates this infrastructure concretely through the NLI system. The patterns appear not as abstract design choices but as specific components in a real architecture — components whose structural properties produce the governance guarantees that regulated deployment requires.
