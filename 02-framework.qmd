@@ -14,7 +14,7 @@ This three-category structure is preserved in the agentic mapping, with one qual
 
 ## Mapping Criteria
 
-Not all twenty-three GoF patterns map equally well to the agentic context. The twelve patterns included in this catalogue were selected against three criteria:
+Not all twenty-three GoF patterns map equally well to the agentic context. The fourteen patterns included in this catalogue were selected against three criteria:
 
 **Structural correspondence.** The GoF pattern's core structural logic — its participants, their relationships, and the problem it solves — must map to a recognisable recurring problem in agentic AI system design. Superficial analogies do not qualify. The mapping must hold at the level of the pattern's participants and their responsibilities.
 
@@ -22,7 +22,53 @@ Not all twenty-three GoF patterns map equally well to the agentic context. The t
 
 **Non-trivial translation.** The pattern must require meaningful adaptation for the agentic context. Patterns that translate directly with no extension are less interesting theoretically. Patterns that require the stochasticity delta — that expose a genuine gap between GoF assumptions and agentic reality — are more interesting and more useful.
 
-Eleven GoF patterns did not meet these criteria and are excluded. Their exclusion is noted where relevant: Factory Method, for instance, is acknowledged in the Strategy chapter as a pattern whose concerns collapse into Strategy in the agentic context.
+Fourteen GoF patterns met these criteria and form the catalogue. Nine did not. Their exclusion is not incidental — it is informative. Understanding why certain patterns do not transfer to the agentic context sharpens the theoretical argument for the fourteen that do.
+
+## Excluded Patterns {#sec-excluded}
+
+The nine excluded patterns fall into three categories, each reflecting a different reason for non-transfer.
+
+### Category 1 — Irrelevant Concern
+
+Three patterns address problems that simply do not manifest as recurring architectural concerns in LLM-based agentic systems. The GoF problem is real in its original context; in the agentic context, the problem does not arise at the level where design patterns operate.
+
+**Flyweight** uses sharing to support large numbers of fine-grained objects efficiently. The motivating concern is memory efficiency under high object instantiation volume. In agentic AI, the expensive resources are API calls, token budgets, and inference latency — not object memory. The cost model is entirely different. A thousand character objects in a text editor is a Flyweight problem; a thousand LLM inference calls is a rate limiting and batching problem, which the `RateLimitDecorator` and the `ToolRegistryFacade` already handle. Flyweight is excluded because its motivating concern is an artefact of OOP's instantiation model, not a concern that transfers to agent architectures.
+
+**Prototype** creates new objects by copying existing ones, deferring the decision of which class to instantiate to subclasses. The concern is the cost of object creation and the need for independent copies. In agentic AI, agent instances are not cloned in any meaningful sense — agents are configured, not copied. The configuration management concern is handled by Singleton and Builder. Prototype is excluded for the same reason as Flyweight: it addresses an OOP-specific concern that does not arise in agentic systems.
+
+**Iterator** provides sequential traversal of a collection without exposing its internal representation. This concern is absorbed by language-level primitives in every modern runtime — Python's `for` loop, JavaScript's `Symbol.iterator` — and by the internal logic of other patterns in this catalogue: Composite's tree traversal, the Command Log's query interface, the eval suite's judge iteration. Iterator is excluded because its concern is pre-solved at the language level before any design pattern decision needs to be made.
+
+### Category 2 — Absorbed Concern
+
+Four patterns address concerns that are genuine in agentic systems but are handled within another pattern in this catalogue rather than earning a standalone entry. Each absorption is documented explicitly at the point of inclusion.
+
+**Factory Method** governs object creation through subclass-determined instantiation. In GoF, creation and execution are cleanly separable: a Factory Method decides what to create; a Strategy decides how to execute. In agentic AI this separation collapses. Selecting a reasoning strategy is itself a reasoning act — the `AgentRunner`'s `selectStrategy()` logic is not a neutral constructor call but a metacognitive appraisal of task requirements. Creation and execution are entangled. Factory Method is absorbed into Strategy and documented there explicitly. It does not earn a standalone entry because it does not solve a problem that is distinct from Strategy in the agentic context.
+
+**Proxy** provides a surrogate or placeholder that controls access to another object. GoF identifies four proxy types: Remote, Virtual, Protection, and Smart Reference. In agentic AI, the Protection Proxy concern — access control, HITL review — is the most relevant. But in agentic systems, the Decorator/Proxy distinction collapses: every access control decision is itself a processing step requiring deliberation, not a transparent gate. A `HITLDecorator` that routes outputs to a human reviewer queue is adding a behaviour (the review step) as well as controlling access. A `GuardrailDecorator` that blocks violating outputs is making a judgment as well as enforcing a constraint. The clean GoF separation between "adds behaviour" (Decorator) and "controls access" (Proxy) does not hold when the control decision requires the same kind of reasoning as the behaviour addition. Proxy is absorbed into Decorator and documented there explicitly.
+
+**Bridge** decouples an abstraction from its implementation so both can vary independently. The concern — separating variation in reasoning abstraction from variation in model implementation — is real. But in agentic AI, this concern is already handled at two levels: the Strategy pattern handles reasoning abstraction variation, and the Model Layer Adapter handles implementation variation. Bridge's primary contribution — enabling upfront design of independent variation axes — requires knowing what both axes will be before the system is built. Agentic architectures are still discovering their abstraction axes. Bridge is excluded because its concerns are covered by Adapter and Strategy, and its upfront-design assumption does not hold in a field where fundamental abstractions are still being established.
+
+**Visitor** adds new operations to objects without modifying them. The double-dispatch mechanism lets you add analytical capabilities to an existing object hierarchy — a new analysis over an agent output taxonomy, a new report over the Command Log — without changing the objects being analysed. In agentic AI, the reactive case (responding to new data as it arrives) is covered by Observer, and the evaluation case (running new assessments on existing Command records) is covered by the Abstract Factory's judge products. Visitor's double-dispatch mechanism has no meaningful agentic equivalent. Its concern is distributed across Observer and Abstract Factory rather than earning a standalone entry.
+
+### Category 3 — Pre-Solved Concern
+
+Two patterns address concerns that are pre-solved by the LLM itself or by other infrastructure that agentic systems necessarily include.
+
+**Interpreter** defines a representation for a grammar and an interpreter that evaluates sentences in that language. The canonical examples are SQL parsers, regular expression engines, and domain-specific scripting languages. In agentic AI, the LLM is the interpreter. When an agent receives a natural language instruction, structured prompt, or tool response, the model interprets it using the probabilistic world knowledge encoded in its weights. There is no need to define a formal grammar and walk an AST. The one place where Interpreter logic appears — tool schema validation, checking that a tool input conforms to a JSON schema — is handled by the `ToolSchemaCatalog` Singleton and `ToolRegistryFacade`. Interpreter is excluded because the LLM pre-solves the interpretation concern that is the pattern's entire motivation.
+
+### Summary
+
+The three exclusion categories reflect three different relationships between the GoF catalogue and the agentic context:
+
+| Category | Excluded patterns | Reason |
+|---|---|---|
+| Irrelevant concern | Flyweight, Prototype, Iterator | Problem does not arise in agentic systems |
+| Absorbed concern | Factory Method, Bridge, Proxy, Visitor | Concern handled within another pattern in this catalogue |
+| Pre-solved concern | Interpreter | LLM or language primitives pre-solve the concern |
+
+: The nine excluded patterns and their exclusion rationale {#tbl-excluded}
+
+The selection of fourteen patterns over twenty-three is a theoretical claim. Different authors with different architectural priorities might resolve some absorptions differently — a catalogue focused primarily on security might give Proxy a standalone entry to emphasise the HITL concern more strongly. The choices made here reflect a specific commitment: a pattern earns a standalone entry when it names an architectural concern that cannot be adequately expressed as a relationship within another pattern. Where that condition is not met, the absorbed pattern is acknowledged explicitly at the point of its absorption rather than silently omitted.
 
 ## The Stochasticity Delta {#sec-delta}
 
@@ -40,7 +86,7 @@ The stochasticity delta has four principal components:
 
 ## The Responsible AI Thread
 
-A consistent thread runs through all twelve patterns: the relationship between architectural structure and responsible AI deployment. This is not coincidental. The same properties that make a system architecturally sound — observability, testability, composability, auditability — are the properties that make it accountable.
+A consistent thread runs through all fourteen patterns: the relationship between architectural structure and responsible AI deployment. This is not coincidental. The same properties that make a system architecturally sound — observability, testability, composability, auditability — are the properties that make it accountable.
 
 Each pattern entry identifies the responsible AI implications of its structure. The Abstract Factory pattern makes evaluation a first-class architectural concern. The Command pattern makes tool invocations auditable and replayable. The Singleton pattern enforces uniform safety constraints across agent fleets. The Memento pattern creates the state snapshots that governance and accountability require. Taken together, the catalogue describes not only how to build agentic systems that work, but how to build agentic systems that can be trusted.
 
