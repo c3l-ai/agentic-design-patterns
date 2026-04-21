@@ -7,7 +7,7 @@ Centre for Change and Complexity in Learning (C3L), Adelaide University · South
 
 ---
 
-This book presents a formal mapping between the classical Gang of Four (GoF) design pattern catalogue and the emerging architectural problems of agentic AI systems. Fourteen of the original twenty-three GoF patterns map meaningfully to recurring problems in multi-agent system design — and each requires extension to account for the *stochasticity delta*: the set of properties that LLM-based agents possess that classical software components do not.
+This book presents a formal mapping between the classical Gang of Four (GoF) design pattern catalogue and the emerging architectural problems of agentic AI systems. Fifteen of the original twenty-three GoF patterns map meaningfully to recurring problems in multi-agent system design — and each requires extension to account for the *stochasticity delta*: the set of properties that LLM-based agents possess that classical software components do not.
 
 ### Read the book
 

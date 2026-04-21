@@ -1,6 +1,6 @@
 # Composability {#sec-composability}
 
-The fourteen patterns in this catalogue are not a collection of alternatives. They address different concerns at different architectural levels, and the more interesting question is not which pattern to choose but how patterns combine into coherent subsystems. This chapter examines those combinations — the recurring compositions that produce recognisable architectural infrastructure — and the cross-catalogue theoretical observations that only become visible when the patterns are considered as a system rather than individually.
+The fifteen patterns in this catalogue are not a collection of alternatives. They address different concerns at different architectural levels, and the more interesting question is not which pattern to choose but how patterns combine into coherent subsystems. This chapter examines those combinations — the recurring compositions that produce recognisable architectural infrastructure — and the cross-catalogue theoretical observations that only become visible when the patterns are considered as a system rather than individually.
 
 ## Patterns as a System
 
@@ -118,6 +118,6 @@ The practical implication is that eval coverage gaps are structurally visible. A
 
 ## The Catalogue as Infrastructure
 
-The fourteen patterns in this catalogue, taken together, describe the infrastructure layer of a governed agentic system. They do not describe business logic, domain knowledge, or user interface. They describe the structural substrate on which those concerns rest — the mechanisms that make a multi-agent system observable, accountable, resilient, and safe.
+The fifteen patterns in this catalogue, taken together, describe the infrastructure layer of a governed agentic system. They do not describe business logic, domain knowledge, or user interface. They describe the structural substrate on which those concerns rest — the mechanisms that make a multi-agent system observable, accountable, resilient, and safe.
 
 The case study in @sec-case-study demonstrates this infrastructure concretely through the NLI system. The patterns appear not as abstract design choices but as specific components in a real architecture — components whose structural properties produce the governance guarantees that regulated deployment requires.
