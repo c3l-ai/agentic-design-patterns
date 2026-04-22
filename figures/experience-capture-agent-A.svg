@@ -1,0 +1,198 @@
+<svg width="720" height="560" viewBox="0 0 720 560" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Background -->
+  <rect x="10" y="10" width="700" height="540" rx="4" fill="#0f1117" stroke="#1e2230" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="360" y="34" text-anchor="middle" font-size="9" letter-spacing="0.1em" fill="rgba(255,255,255,0.2)">ExperienceCaptureAgent — Safety Layer and Execution States</text>
+  <line x1="25" y1="40" x2="695" y2="40" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+
+  <!-- ============================================ -->
+  <!-- DECORATOR STACK — left column -->
+  <!-- ============================================ -->
+
+  <text x="190" y="56" text-anchor="middle" font-size="7.5" letter-spacing="0.1em" fill="rgba(239,83,80,0.4)">DECORATOR STACK</text>
+
+  <!-- GuardrailDecorator -->
+  <rect x="25" y="62" width="330" height="60" rx="3" fill="rgba(239,83,80,0.07)" stroke="rgba(239,83,80,0.45)" stroke-width="1.25"/>
+  <text x="40" y="79" font-size="9" font-weight="500" fill="rgba(239,83,80,0.95)">GuardrailDecorator</text>
+  <text x="345" y="79" text-anchor="end" font-size="7" fill="rgba(239,83,80,0.4)">always active · outermost</text>
+  <line x1="35" y1="83" x2="345" y2="83" stroke="rgba(239,83,80,0.1)" stroke-width="0.5"/>
+  <text x="40" y="95" font-size="7" fill="rgba(239,83,80,0.6)">reads SafetyConstraintStore Singleton</text>
+  <text x="40" y="106" font-size="7" fill="rgba(239,83,80,0.5)">screens for distress · crisis language · safeguarding indicators</text>
+  <text x="40" y="115" font-size="7" fill="rgba(239,83,80,0.4)">flagged output → escalation path before any other processing</text>
+
+  <!-- LoggingDecorator -->
+  <rect x="45" y="128" width="290" height="44" rx="3" fill="rgba(148,163,184,0.06)" stroke="rgba(148,163,184,0.25)" stroke-width="1"/>
+  <text x="60" y="145" font-size="9" font-weight="500" fill="rgba(148,163,184,0.8)">LoggingDecorator</text>
+  <text x="325" y="145" text-anchor="end" font-size="7" fill="rgba(148,163,184,0.35)">always active</text>
+  <line x1="55" y1="149" x2="325" y2="149" stroke="rgba(148,163,184,0.1)" stroke-width="0.5"/>
+  <text x="60" y="161" font-size="7" fill="rgba(148,163,184,0.5)">produces EDP1 Command records</text>
+  <text x="60" y="170" font-size="7" fill="rgba(148,163,184,0.4)">logs guardrail-approved outputs only</text>
+
+  <!-- HITLDecorator -->
+  <rect x="65" y="178" width="250" height="44" rx="3" fill="rgba(251,191,36,0.07)" stroke="rgba(251,191,36,0.35)" stroke-width="1"/>
+  <text x="80" y="195" font-size="9" font-weight="500" fill="rgba(251,191,36,0.85)">HITLDecorator</text>
+  <text x="305" y="195" text-anchor="end" font-size="7" fill="rgba(251,191,36,0.35)">active for minors</text>
+  <line x1="75" y1="199" x2="305" y2="199" stroke="rgba(251,191,36,0.1)" stroke-width="0.5"/>
+  <text x="80" y="211" font-size="7" fill="rgba(251,191,36,0.55)">routes flagged outputs to human reviewer</text>
+  <text x="80" y="220" font-size="7" fill="rgba(251,191,36,0.4)">triggers WaitingForHumanState ↓</text>
+
+  <!-- Base agent -->
+  <rect x="85" y="228" width="210" height="36" rx="3" fill="rgba(99,179,237,0.07)" stroke="rgba(99,179,237,0.25)" stroke-width="1"/>
+  <text x="190" y="245" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(99,179,237,0.8)">ExperienceCaptureAgent</text>
+  <text x="190" y="256" text-anchor="middle" font-size="7" fill="rgba(99,179,237,0.4)">base · ReflectionStrategy</text>
+
+  <!-- ReflectionDecorator excluded note -->
+  <rect x="25" y="272" width="330" height="14" rx="2" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+  <text x="190" y="282" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.15)">ReflectionDecorator excluded — agent itself is doing reflection</text>
+
+  <!-- Singleton box -->
+  <rect x="25" y="294" width="155" height="36" rx="2" fill="rgba(251,191,36,0.05)" stroke="rgba(251,191,36,0.18)" stroke-width="0.5"/>
+  <text x="102" y="309" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(251,191,36,0.6)">Singleton</text>
+  <text x="102" y="320" text-anchor="middle" font-size="6.5" fill="rgba(251,191,36,0.35)">SafetyConstraintStore</text>
+  <text x="102" y="329" text-anchor="middle" font-size="6.5" fill="rgba(251,191,36,0.35)">EvalThresholdRegistry</text>
+
+  <!-- Abstract Factory box -->
+  <rect x="188" y="294" width="167" height="36" rx="2" fill="rgba(72,187,120,0.05)" stroke="rgba(72,187,120,0.18)" stroke-width="0.5"/>
+  <text x="271" y="309" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(72,187,120,0.6)">Abstract Factory</text>
+  <text x="271" y="320" text-anchor="middle" font-size="6.5" fill="rgba(72,187,120,0.35)">ReflectionQualityJudge</text>
+  <text x="271" y="329" text-anchor="middle" font-size="6.5" fill="rgba(72,187,120,0.35)">CalibrationJudge · SafetyJudge</text>
+
+  <!-- ============================================ -->
+  <!-- CONNECTION ARROW between panels -->
+  <!-- ============================================ -->
+
+  <!-- HITL → WaitingForHuman arrow -->
+  <line x1="360" y1="200" x2="390" y2="200" stroke="rgba(251,191,36,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="390" y1="200" x2="390" y2="350" stroke="rgba(251,191,36,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="390" y1="350" x2="405" y2="350" stroke="rgba(251,191,36,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="401,346 407,350 401,354" fill="rgba(251,191,36,0.4)"/>
+  <text x="375" y="275" font-size="6.5" fill="rgba(251,191,36,0.3)" transform="rotate(-90 375 275)">HITL activates</text>
+
+  <!-- Guardrail → state escalation -->
+  <line x1="355" y1="92" x2="415" y2="92" stroke="rgba(239,83,80,0.2)" stroke-width="0.75" stroke-dasharray="2,2"/>
+  <text x="430" y="96" font-size="6.5" fill="rgba(239,83,80,0.25)">flags →</text>
+
+  <!-- ============================================ -->
+  <!-- STATE MACHINE — right column -->
+  <!-- ============================================ -->
+
+  <text x="570" y="56" text-anchor="middle" font-size="7.5" letter-spacing="0.1em" fill="rgba(148,163,184,0.3)">EXECUTION STATES</text>
+
+  <!-- IdleState -->
+  <rect x="455" y="62" width="240" height="40" rx="3" fill="rgba(72,187,120,0.07)" stroke="rgba(72,187,120,0.3)" stroke-width="1"/>
+  <text x="575" y="79" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(72,187,120,0.85)">IdleState</text>
+  <line x1="465" y1="83" x2="685" y2="83" stroke="rgba(72,187,120,0.1)" stroke-width="0.5"/>
+  <text x="575" y="95" text-anchor="middle" font-size="7" fill="rgba(72,187,120,0.45)">awaiting session · no tool calls</text>
+
+  <!-- Idle → Planning -->
+  <line x1="575" y1="102" x2="575" y2="114" stroke="rgba(72,187,120,0.3)" stroke-width="0.75"/>
+  <polygon points="571,110 575,116 579,110" fill="rgba(72,187,120,0.35)"/>
+  <text x="580" y="110" font-size="6.5" fill="rgba(72,187,120,0.35)">session received</text>
+
+  <!-- PlanningState -->
+  <rect x="455" y="116" width="240" height="40" rx="3" fill="rgba(99,179,237,0.07)" stroke="rgba(99,179,237,0.3)" stroke-width="1"/>
+  <text x="575" y="133" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(99,179,237,0.85)">PlanningState</text>
+  <line x1="465" y1="137" x2="685" y2="137" stroke="rgba(99,179,237,0.1)" stroke-width="0.5"/>
+  <text x="575" y="149" text-anchor="middle" font-size="7" fill="rgba(99,179,237,0.45)">generates targeted questions · planning only</text>
+
+  <!-- Planning → Executing -->
+  <line x1="575" y1="156" x2="575" y2="168" stroke="rgba(99,179,237,0.3)" stroke-width="0.75"/>
+  <polygon points="571,164 575,170 579,164" fill="rgba(99,179,237,0.35)"/>
+  <text x="580" y="164" font-size="6.5" fill="rgba(99,179,237,0.35)">questions ready</text>
+
+  <!-- ExecutingState -->
+  <rect x="440" y="170" width="270" height="50" rx="3" fill="rgba(154,117,227,0.09)" stroke="rgba(154,117,227,0.5)" stroke-width="1.5"/>
+  <text x="575" y="188" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(154,117,227,0.95)">ExecutingState</text>
+  <line x1="450" y1="192" x2="700" y2="192" stroke="rgba(154,117,227,0.15)" stroke-width="0.5"/>
+  <text x="575" y="204" text-anchor="middle" font-size="7" fill="rgba(154,117,227,0.55)">reflection dialogue · full tool access</text>
+  <text x="575" y="213" text-anchor="middle" font-size="7" fill="rgba(154,117,227,0.4)">GuardrailDecorator active on every output</text>
+
+  <!-- Executing loop back (shouldStop = false) -->
+  <path d="M 440 195 C 410 195 410 258 440 262" stroke="rgba(154,117,227,0.2)" stroke-width="0.75" stroke-dasharray="2,2" fill="none"/>
+  <polygon points="436,258 442,264 444,256" fill="rgba(154,117,227,0.25)"/>
+  <text x="392" y="222" font-size="6.5" fill="rgba(154,117,227,0.25)">shouldStop</text>
+  <text x="392" y="231" font-size="6.5" fill="rgba(154,117,227,0.25)">= false</text>
+
+  <!-- Executing → Reflecting -->
+  <line x1="575" y1="220" x2="575" y2="232" stroke="rgba(154,117,227,0.3)" stroke-width="0.75"/>
+  <polygon points="571,228 575,234 579,228" fill="rgba(154,117,227,0.35)"/>
+  <text x="580" y="228" font-size="6.5" fill="rgba(154,117,227,0.35)">shouldStop() = true</text>
+
+  <!-- ReflectingState -->
+  <rect x="455" y="234" width="240" height="48" rx="3" fill="rgba(237,137,54,0.07)" stroke="rgba(237,137,54,0.3)" stroke-width="1"/>
+  <text x="575" y="252" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(237,137,54,0.85)">ReflectingState</text>
+  <line x1="465" y1="256" x2="685" y2="256" stroke="rgba(237,137,54,0.1)" stroke-width="0.5"/>
+  <text x="575" y="268" text-anchor="middle" font-size="7" fill="rgba(237,137,54,0.5)">synthesis · calibration assessment</text>
+  <text x="575" y="278" text-anchor="middle" font-size="7" fill="rgba(237,137,54,0.4)">constructs structured note</text>
+
+  <!-- Reflecting → Idle -->
+  <line x1="575" y1="282" x2="575" y2="294" stroke="rgba(237,137,54,0.3)" stroke-width="0.75"/>
+  <polygon points="571,290 575,296 579,290" fill="rgba(237,137,54,0.35)"/>
+  <text x="580" y="290" font-size="6.5" fill="rgba(237,137,54,0.35)">note captured</text>
+
+  <!-- WaitingForHumanState -->
+  <rect x="455" y="296" width="240" height="50" rx="3" fill="rgba(239,83,80,0.07)" stroke="rgba(239,83,80,0.4)" stroke-width="1.25"/>
+  <text x="575" y="314" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(239,83,80,0.9)">WaitingForHuman</text>
+  <line x1="465" y1="318" x2="685" y2="318" stroke="rgba(239,83,80,0.1)" stroke-width="0.5"/>
+  <text x="575" y="330" text-anchor="middle" font-size="7" fill="rgba(239,83,80,0.5)">HITL queue · agent suspended</text>
+  <text x="575" y="340" text-anchor="middle" font-size="7" fill="rgba(239,83,80,0.4)">no new outputs · Memento held</text>
+
+  <!-- WaitingForHuman → Executing (approved) -->
+  <path d="M 455 312 C 430 312 430 192 440 192" stroke="rgba(72,187,120,0.2)" stroke-width="0.75" stroke-dasharray="2,2" fill="none"/>
+  <polygon points="436,188 442,194 444,186" fill="rgba(72,187,120,0.25)"/>
+  <text x="416" y="255" font-size="6.5" fill="rgba(72,187,120,0.25)">approved</text>
+
+  <!-- WaitingForHuman → ErrorRecovery (rejected) -->
+  <line x1="575" y1="346" x2="575" y2="358" stroke="rgba(239,83,80,0.3)" stroke-width="0.75"/>
+  <polygon points="571,354 575,360 579,354" fill="rgba(239,83,80,0.35)"/>
+  <text x="580" y="354" font-size="6.5" fill="rgba(239,83,80,0.35)">rejected</text>
+
+  <!-- ErrorRecoveryState -->
+  <rect x="455" y="360" width="240" height="44" rx="3" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.25)" stroke-width="1"/>
+  <text x="575" y="378" text-anchor="middle" font-size="9" font-weight="500" fill="rgba(251,191,36,0.8)">ErrorRecovery</text>
+  <line x1="465" y1="382" x2="685" y2="382" stroke="rgba(251,191,36,0.1)" stroke-width="0.5"/>
+  <text x="575" y="394" text-anchor="middle" font-size="7" fill="rgba(251,191,36,0.45)">adjust approach · circuit breaker halts loops</text>
+
+  <!-- ErrorRecovery → Executing (recovered) -->
+  <path d="M 695 382 C 715 382 715 195 710 195" stroke="rgba(251,191,36,0.15)" stroke-width="0.75" stroke-dasharray="2,2" fill="none"/>
+  <polygon points="706,191 712,197 714,189" fill="rgba(251,191,36,0.2)"/>
+  <text x="717" y="292" font-size="6.5" fill="rgba(251,191,36,0.2)" transform="rotate(90 717 292)">recovered</text>
+
+  <!-- ============================================ -->
+  <!-- BOTTOM ROW — shared accountability layer -->
+  <!-- ============================================ -->
+
+  <line x1="25" y1="414" x2="695" y2="414" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+  <text x="360" y="428" text-anchor="middle" font-size="7.5" letter-spacing="0.08em" fill="rgba(255,255,255,0.12)">ACCOUNTABILITY LAYER</text>
+
+  <!-- Circuit breaker -->
+  <rect x="25" y="434" width="210" height="30" rx="2" fill="rgba(245,158,11,0.05)" stroke="rgba(245,158,11,0.18)" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <text x="130" y="447" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(245,158,11,0.55)">⚠  Circuit breaker — 10 turns</text>
+  <text x="130" y="458" text-anchor="middle" font-size="6.5" fill="rgba(245,158,11,0.35)">force → ReflectingState · bounded engagement</text>
+
+  <!-- Command -->
+  <rect x="243" y="434" width="150" height="30" rx="2" fill="rgba(99,179,237,0.05)" stroke="rgba(99,179,237,0.18)" stroke-width="0.5"/>
+  <text x="318" y="447" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(99,179,237,0.55)">Command — EDP1</text>
+  <text x="318" y="458" text-anchor="middle" font-size="6.5" fill="rgba(99,179,237,0.35)">full provenance · mementoRef</text>
+
+  <!-- Memento -->
+  <rect x="401" y="434" width="140" height="30" rx="2" fill="rgba(154,117,227,0.05)" stroke="rgba(154,117,227,0.18)" stroke-width="0.5"/>
+  <text x="471" y="447" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(154,117,227,0.55)">Memento</text>
+  <text x="471" y="458" text-anchor="middle" font-size="6.5" fill="rgba(154,117,227,0.35)">session continuity</text>
+
+  <!-- Observer -->
+  <rect x="549" y="434" width="146" height="30" rx="2" fill="rgba(34,197,94,0.05)" stroke="rgba(34,197,94,0.18)" stroke-width="0.5"/>
+  <text x="622" y="447" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(34,197,94,0.55)">Observer</text>
+  <text x="622" y="458" text-anchor="middle" font-size="6.5" fill="rgba(34,197,94,0.35)">PatternWatcher · Dashboard · Alert</text>
+
+  <!-- Central design tension -->
+  <rect x="25" y="472" width="670" height="30" rx="2" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+  <text x="360" y="485" text-anchor="middle" font-size="7.5" font-weight="500" fill="rgba(255,255,255,0.25)">Central tension — shouldStop() is a probabilistic judgment about depth of student self-disclosure</text>
+  <text x="360" y="496" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.15)">The architecture bounds it. The LLM does not solve it.</text>
+
+  <!-- Caption -->
+  <text x="360" y="540" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.1)">ExperienceCaptureAgent · decorator stack ordering is a safety constraint · state machine enforces bounded engagement</text>
+
+</svg>

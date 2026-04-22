@@ -1,0 +1,117 @@
+<svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+
+  <!-- Background -->
+  <rect x="10" y="10" width="700" height="460" rx="4" fill="#0f1117" stroke="#1e2230" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="360" y="34" text-anchor="middle" font-size="9" letter-spacing="0.1em" fill="rgba(255,255,255,0.2)">AbstractAgentLoop.run() — ExperienceCaptureAgent specialisation</text>
+  <line x1="25" y1="40" x2="695" y2="40" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+
+  <!-- Column headers -->
+  <text x="200" y="54" text-anchor="middle" font-size="7" letter-spacing="0.1em" fill="rgba(72,187,120,0.4)">SKELETON STEP</text>
+  <text x="480" y="54" text-anchor="middle" font-size="7" letter-spacing="0.1em" fill="rgba(251,191,36,0.4)">ExperienceCaptureAgent SPECIALISATION</text>
+  <text x="672" y="54" text-anchor="middle" font-size="7" letter-spacing="0.08em" fill="rgba(148,163,184,0.3)">TYPE</text>
+  <line x1="25" y1="58" x2="695" y2="58" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+  <!-- Step dividers -->
+  <line x1="370" y1="58" x2="370" y2="435" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+  <line x1="635" y1="58" x2="635" y2="435" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+  <!-- ── Step 1 — initState ── -->
+  <rect x="25" y="62" width="690" height="36" rx="2" fill="rgba(72,187,120,0.06)" stroke="rgba(72,187,120,0.18)" stroke-width="0.5"/>
+  <text x="35" y="78" font-size="8.5" fill="rgba(72,187,120,0.8)">1.  initState(goal)</text>
+  <text x="35" y="90" font-size="7" fill="rgba(72,187,120,0.4)">initialise agent execution state from session context</text>
+  <text x="380" y="78" font-size="7.5" fill="rgba(72,187,120,0.55)">load mementoRef from SessionContext</text>
+  <text x="380" y="90" font-size="7" fill="rgba(72,187,120,0.35)">restore prior session state if interrupted mid-reflection</text>
+  <text x="645" y="82" font-size="7" fill="rgba(72,187,120,0.5)">invariant</text>
+
+  <!-- ── Step 2 — buildContext HOOK ── -->
+  <rect x="25" y="101" width="690" height="48" rx="2" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.28)" stroke-width="0.75" stroke-dasharray="4,2"/>
+  <text x="35" y="117" font-size="8.5" fill="rgba(251,191,36,0.85)">2.  buildContext(s, memory, policies)</text>
+  <text x="35" y="129" font-size="7" fill="rgba(251,191,36,0.45)">assemble the longitudinal context this agent needs</text>
+  <text x="35" y="141" font-size="7" fill="rgba(251,191,36,0.3)">other agents: current task context only</text>
+  <text x="380" y="117" font-size="7.5" fill="rgba(251,191,36,0.7)">session trace (EDP1 Command records)</text>
+  <text x="380" y="129" font-size="7" fill="rgba(251,191,36,0.5)">prior reflection notes from LearnerWellnessProfile</text>
+  <text x="380" y="141" font-size="7" fill="rgba(251,191,36,0.4)">wellness indicators · calibration history</text>
+  <text x="645" y="125" font-size="7" fill="rgba(251,191,36,0.6)">HOOK</text>
+  <text x="645" y="136" font-size="6.5" fill="rgba(251,191,36,0.35)">specialised</text>
+
+  <!-- ── Step 3 — planStep HOOK + Strategy ── -->
+  <rect x="25" y="152" width="690" height="68" rx="2" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.28)" stroke-width="0.75" stroke-dasharray="4,2"/>
+  <text x="35" y="168" font-size="8.5" fill="rgba(251,191,36,0.85)">3.  planStep(llm, context)</text>
+  <text x="35" y="180" font-size="7" fill="rgba(251,191,36,0.45)">the reasoning step — Strategy plugs in here</text>
+
+  <!-- Strategy badge -->
+  <rect x="25" y="184" width="340" height="32" rx="2" fill="rgba(154,117,227,0.08)" stroke="rgba(154,117,227,0.3)" stroke-width="0.75"/>
+  <text x="35" y="197" font-size="7.5" font-weight="500" fill="rgba(154,117,227,0.85)">ReflectionStrategy</text>
+  <text x="35" y="208" font-size="7" fill="rgba(154,117,227,0.5)">question gen → elicitation → calibration assessment → synthesis</text>
+
+  <text x="380" y="168" font-size="7.5" fill="rgba(251,191,36,0.7)">ReflectionStrategy selected at task init</text>
+  <text x="380" y="180" font-size="7" fill="rgba(251,191,36,0.5)">may substitute to ToolUseStrategy mid-session</text>
+  <text x="380" y="192" font-size="7" fill="rgba(251,191,36,0.4)">if so: Memento carries prior responses to incoming strategy</text>
+  <text x="380" y="204" font-size="6.5" fill="rgba(154,117,227,0.4)">Strategy pattern at this hook point</text>
+
+  <text x="645" y="182" font-size="7" fill="rgba(251,191,36,0.6)">HOOK</text>
+  <text x="645" y="193" font-size="6.5" fill="rgba(251,191,36,0.35)">+ Strategy</text>
+
+  <!-- ── Step 4 — violatesPolicy INVARIANT ── -->
+  <rect x="25" y="223" width="690" height="36" rx="2" fill="rgba(239,83,80,0.06)" stroke="rgba(239,83,80,0.2)" stroke-width="0.5"/>
+  <text x="35" y="239" font-size="8.5" fill="rgba(239,83,80,0.75)">4.  violatesPolicy(plan, policies)  →  CoR chain</text>
+  <text x="35" y="251" font-size="7" fill="rgba(239,83,80,0.4)">cannot be skipped by any concrete agent</text>
+  <text x="380" y="239" font-size="7.5" fill="rgba(239,83,80,0.6)">identical to all other agents</text>
+  <text x="380" y="251" font-size="7" fill="rgba(239,83,80,0.35)">safeguarding policy enforced before any tool call</text>
+  <text x="645" y="243" font-size="7" fill="rgba(239,83,80,0.5)">invariant</text>
+
+  <!-- ── Step 5 — executeTool INVARIANT ── -->
+  <rect x="25" y="262" width="690" height="36" rx="2" fill="rgba(72,187,120,0.06)" stroke="rgba(72,187,120,0.18)" stroke-width="0.5"/>
+  <text x="35" y="278" font-size="8.5" fill="rgba(72,187,120,0.8)">5.  executeTool(plan, tools)  →  ToolRegistryFacade</text>
+  <text x="35" y="290" font-size="7" fill="rgba(72,187,120,0.4)">typed invocation · sandboxed execution</text>
+  <text x="380" y="278" font-size="7.5" fill="rgba(72,187,120,0.55)">DataProductAccessAgent Facade mediates all data access</text>
+  <text x="380" y="290" font-size="7" fill="rgba(72,187,120,0.35)">consent validated · lineage recorded on every call</text>
+  <text x="645" y="282" font-size="7" fill="rgba(72,187,120,0.5)">invariant</text>
+
+  <!-- ── Step 6 — shouldStop HOOK ── -->
+  <rect x="25" y="301" width="690" height="56" rx="2" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.28)" stroke-width="0.75" stroke-dasharray="4,2"/>
+  <text x="35" y="317" font-size="8.5" fill="rgba(251,191,36,0.85)">6.  shouldStop(state)</text>
+  <text x="35" y="329" font-size="7" fill="rgba(251,191,36,0.45)">most demanding hook in the system</text>
+
+  <!-- Stochastic badge -->
+  <rect x="25" y="333" width="340" height="20" rx="2" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.25)" stroke-width="0.5"/>
+  <text x="35" y="346" font-size="7" fill="rgba(245,158,11,0.7)">⚠  stochastic — probabilistic judgment about depth of student self-disclosure</text>
+
+  <text x="380" y="317" font-size="7.5" fill="rgba(251,191,36,0.7)">conservative by policy — err toward continuing</text>
+  <text x="380" y="329" font-size="7" fill="rgba(251,191,36,0.5)">maximum 10 turns enforced by State machine circuit breaker</text>
+  <text x="380" y="341" font-size="7" fill="rgba(251,191,36,0.4)">same output may trigger stop on one run, not on another</text>
+  <text x="380" y="349" font-size="6.5" fill="rgba(245,158,11,0.35)">hook-level eval coverage essential — ReflectionQualityJudge</text>
+
+  <text x="645" y="323" font-size="7" fill="rgba(251,191,36,0.6)">HOOK</text>
+  <text x="645" y="334" font-size="6.5" fill="rgba(245,158,11,0.5)">stochastic</text>
+
+  <!-- ── Step 7 — finaliseAnswer HOOK ── -->
+  <rect x="25" y="360" width="690" height="36" rx="2" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.28)" stroke-width="0.75" stroke-dasharray="4,2"/>
+  <text x="35" y="376" font-size="8.5" fill="rgba(251,191,36,0.85)">7.  finaliseAnswer(plan, state)</text>
+  <text x="35" y="388" font-size="7" fill="rgba(251,191,36,0.45)">produce the structured reflection note</text>
+  <text x="380" y="376" font-size="7.5" fill="rgba(251,191,36,0.7)">DataAccessCommand with full provenance</text>
+  <text x="380" y="388" font-size="7" fill="rgba(251,191,36,0.4)">agentId · sessionId · guardrail verdict · mementoRef · timestamp</text>
+  <text x="645" y="380" font-size="7" fill="rgba(251,191,36,0.6)">HOOK</text>
+  <text x="645" y="391" font-size="6.5" fill="rgba(251,191,36,0.35)">specialised</text>
+
+  <!-- ── Step 8 — failSafe INVARIANT ── -->
+  <rect x="25" y="399" width="690" height="30" rx="2" fill="rgba(30,41,59,0.6)" stroke="rgba(100,116,139,0.2)" stroke-width="0.5"/>
+  <text x="35" y="415" font-size="8.5" fill="rgba(100,116,139,0.6)">8.  failSafe(state)  →  graceful degradation + escalation</text>
+  <text x="380" y="415" font-size="7" fill="rgba(100,116,139,0.35)">identical to all agents · cannot be overridden</text>
+  <text x="645" y="415" font-size="7" fill="rgba(100,116,139,0.4)">invariant</text>
+
+  <!-- Legend -->
+  <rect x="25" y="435" width="690" height="28" rx="2" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+  <rect x="35" y="442" width="60" height="12" rx="1" fill="rgba(72,187,120,0.06)" stroke="rgba(72,187,120,0.18)" stroke-width="0.5"/>
+  <text x="100" y="451" font-size="6.5" fill="rgba(72,187,120,0.5)">invariant — identical across all agents</text>
+  <rect x="230" y="442" width="60" height="12" rx="1" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.28)" stroke-width="0.5" stroke-dasharray="3,1"/>
+  <text x="295" y="451" font-size="6.5" fill="rgba(251,191,36,0.5)">hook — specialised by ExperienceCaptureAgent</text>
+  <rect x="490" y="442" width="60" height="12" rx="1" fill="rgba(154,117,227,0.08)" stroke="rgba(154,117,227,0.3)" stroke-width="0.5"/>
+  <text x="555" y="451" font-size="6.5" fill="rgba(154,117,227,0.5)">Strategy — pluggable at planStep()</text>
+
+  <!-- Caption -->
+  <text x="360" y="468" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.08)">Invariant sequence cannot be reordered · policy check cannot be skipped · shouldStop() is the most stochastically demanding hook in NLI</text>
+
+</svg>

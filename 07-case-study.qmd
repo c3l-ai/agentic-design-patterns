@@ -20,7 +20,15 @@ Everything else about the reflective agent's design follows from taking that con
 
 ### The pattern stack
 
+@fig-experience-capture-agent-a provides an overview of the agent's safety and execution architecture. The left side shows the decorator stack — three wrappers applied in a fixed order, each addressing a distinct safety concern, with the base agent at the centre. The right side shows the execution state machine — five states with labelled transitions, the HITL activation path crossing from the decorator layer to the state machine, and the circuit breaker that enforces bounded engagement. Below both, the accountability layer shows the Command, Memento, and Observer patterns that make the agent's behaviour reconstructable and auditable after the fact.
+
+![ExperienceCaptureAgent — safety layer and execution states. Left: the three-decorator stack in fixed safety order, with the HITLDecorator activation arrow bridging to the state machine. Right: five execution states with transitions, HITL entry and exit paths, and the circuit breaker at ten dialogue turns. Bottom: Command provenance, Memento session continuity, and Observer notification relationships.](figures/experience-capture-agent-A.svg){#fig-experience-capture-agent-a}
+
 #### Template Method — the fixed skeleton
+
+@fig-experience-capture-template-method shows the `AbstractAgentLoop.run()` skeleton as the `ExperienceCaptureAgent` specialises it. The three-column layout separates what the skeleton requires (left), what this specific agent does at each step (centre), and whether the step is invariant or a hook (right). Invariant steps — `initState()`, `violatesPolicy()`, `executeTool()`, `failSafe()` — are identical across every agent in the system; the agent cannot modify or remove them. Hook steps — `buildContext()`, `planStep()`, `shouldStop()`, `finaliseAnswer()` — are where the agent's specific character lives. The `shouldStop()` hook is highlighted as the most stochastically demanding step in the system, and the Strategy badge inside `planStep()` shows exactly where `ReflectionStrategy` plugs in.
+
+![ExperienceCaptureAgent — Template Method skeleton. Three-column layout: skeleton step, agent-specific specialisation, and type (invariant or hook). The planStep() hook nests the Strategy composition. The shouldStop() hook carries the stochastic flag and the circuit breaker policy. The invariant policy check at step 4 is visually distinguished as the governance guarantee that cannot be bypassed.](figures/experience-capture-template-method.svg){#fig-experience-capture-template-method}
 
 The `ExperienceCaptureAgent` inherits the `AbstractAgentLoop` skeleton [@alenezi2026prompt]. The invariant steps — policy check, tool execution via the `ToolRegistryFacade`, state update, memory write, `failSafe()` — are identical to every other agent in the system. No concrete agent can bypass the policy check; no concrete agent can write to the `LearnerWellnessProfile` without passing through the `DataProductAccessAgent` Facade.
 
