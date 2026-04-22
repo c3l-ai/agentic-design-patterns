@@ -1,0 +1,155 @@
+# Case Study: The NLI System {#sec-case-study}
+
+The Next Level Insight (NLI) system is a person-centred, governed AI platform for wellness and learning analytics developed at the Centre for Change and Complexity in Learning (C3L), Adelaide University. It sits on top of the Global Data Consortium federated data architecture — four custodial domains exposing health, learning, performance, and social data through AWS DataZone — and coordinates eleven agents across four layers: data ingestion, interaction, analysis, and governance.
+
+The full NLI architecture is described elsewhere. This chapter uses NLI as a worked example for the pattern catalogue, demonstrating how the fifteen patterns compose into a coherent governed system rather than appearing as isolated design choices. The chapter proceeds by examining the most pattern-dense component in the system — the `ExperienceCaptureAgent`, NLI's reflective agent — before situating it within the broader agent collective.
+
+The reflective agent is a productive anchor because it concentrates every pattern in the catalogue into a single component whose requirements are specific, whose responsible AI constraints are demanding, and whose design tensions are unresolvable without the structural clarity that the patterns provide.
+
+---
+
+## The ExperienceCaptureAgent {#sec-case-study-reflective}
+
+### Context and purpose
+
+A student completes a study session. The `ExperienceCaptureAgent`'s job is to help them make sense of it. This means receiving a session context, generating targeted reflection questions based on what actually happened in that session, eliciting the student's responses, interpreting those responses against prior sessions, synthesising a structured reflection note, and writing it to the `LearnerWellnessProfile`. It also means detecting, without false positives or false negatives, whether a student is disclosing something that warrants coach attention — distress, overwhelm, a situation at home, an indication that something is wrong.
+
+This is not a task that admits a clean terminal state. "Answer this data query" is done when the query is answered. "Help this student reflect meaningfully on their experience" is done when — what, exactly? The `shouldStop()` hook for this agent is the most demanding in the system: a probabilistic judgment about the depth and honesty of a student's self-disclosure, made by an LLM-based component, in a context where ending too early is a quality failure and ending too late is a burden on the student. This is the stochasticity delta in its sharpest form.
+
+Everything else about the reflective agent's design follows from taking that constraint seriously.
+
+### The pattern stack
+
+#### Template Method — the fixed skeleton
+
+The `ExperienceCaptureAgent` inherits the `AbstractAgentLoop` skeleton [@alenezi2026prompt]. The invariant steps — policy check, tool execution via the `ToolRegistryFacade`, state update, memory write, `failSafe()` — are identical to every other agent in the system. No concrete agent can bypass the policy check; no concrete agent can write to the `LearnerWellnessProfile` without passing through the `DataProductAccessAgent` Facade.
+
+The hooks it specialises are:
+
+- `buildContext()` — pulls the full session trace (Command records from the completed session), prior reflection notes from the `LearnerWellnessProfile`, and the student's current wellness indicators from wearable data. The reflective agent's context is longitudinal by design — it cannot generate targeted questions from a single session in isolation.
+- `shouldStop()` — checks whether a reflection note of sufficient quality has been captured. This hook is stochastic and conservative by policy: the agent errs toward continuing rather than ending prematurely, subject to a maximum turn limit enforced by the State machine's circuit breaker.
+- `finaliseAnswer()` — writes the structured reflection note via the `DataProductAccessAgent` Facade, encapsulated as a `DataAccessCommand` with full provenance.
+
+#### Strategy — ReflectionStrategy at the planStep() hook
+
+The `AgentRunner` selects `ReflectionStrategy` at task initialisation. This is distinct from `ReActStrategy` (tool-using task execution), `PlanningStrategy` (multi-step plan construction), and `ToolUseStrategy` (direct data retrieval). `ReflectionStrategy` structures the reflection cycle in four phases:
+
+1. **Question generation** — analyse the session trace and generate targeted questions based on what actually happened: which tools were used, how long was spent, where the student paused, what they produced.
+2. **Elicitation** — conduct the reflection dialogue with the student. Questions are adaptive — follow-up questions depend on the student's prior response in the same session.
+3. **Calibration assessment** — compare the student's self-assessment against the session trace. A student who describes a session as "easy" but spent forty minutes on a single concept and used the planning tool three times is exhibiting a calibration gap. This assessment is part of what gets written to the `LearnerWellnessProfile`.
+4. **Synthesis** — produce the structured reflection note: session summary, student's expressed experience, calibration assessment, any indicators flagged for coach attention.
+
+The `AgentRunner` can substitute `ReflectionStrategy` mid-session. If the student's responses are too brief to support meaningful reflection, it may switch to a lighter `ToolUseStrategy` to retrieve relevant prior session data and offer it as a prompt. When substitution occurs, the prior strategy's working state is captured as a Memento and passed to the incoming strategy via `receiveContext(memento)` — the student's responses so far are not lost.
+
+#### Decorator stack — ordering as safety constraint
+
+The reflective agent's decorator stack is the most carefully ordered in the system. A student disclosing distress, overwhelm, or a difficult situation is not an ordinary output. The ordering is:
+
+```
+GuardrailDecorator
+  └── LoggingDecorator
+        └── HITLDecorator
+              └── ExperienceCaptureAgent (base)
+```
+
+`GuardrailDecorator` is outermost and always active. It screens every output against the `SafetyConstraintStore` Singleton for safeguarding indicators — distress signals, disclosures of harm, crisis language — before any other processing occurs. A flagged output does not reach the `LoggingDecorator` as a normal record; it is routed immediately to the escalation path.
+
+`LoggingDecorator` captures the full reflection interaction as EDP1 Command records. It logs only guardrail-approved outputs — the ordering ensures that flagged content is never written to the standard interaction trace before a human has reviewed it.
+
+`HITLDecorator` is active for this agent in all deployments involving minors. Any output that the guardrail scores above the distress threshold routes to a human reviewer — coach or wellbeing officer — before the session continues. The agent transitions to `WaitingForHumanState` and issues no further outputs until a verdict returns.
+
+`ReflectionDecorator` is deliberately excluded from this agent's stack. The agent itself is doing reflection — adding a meta-reflection wrapper would be circular and would consume tokens without producing value the student ever sees.
+
+#### State — the Control Layer
+
+The `ExperienceCaptureAgent` moves through five execution states, managed by the Control Layer that separates cognition from execution [@alenezi2026prompt; @arunkumar2026agentic]:
+
+**IdleState** — waiting for a session context from the `ConversationOrchestrator`. Minimal resource allocation. No tool calls.
+
+**PlanningState** — generating the targeted reflection questions. Only planning operations available — the agent constructs its question set before any dialogue begins. Transitions to `ExecutingState` when the question set is ready.
+
+**ExecutingState** — conducting the reflection dialogue. Full tool access within the agent's permission scope. The agent retrieves relevant prior session data through the `DataProductAccessAgent` Facade as needed. Transitions to `ReflectingState` after each student response for quality assessment, then returns to `ExecutingState` for the next question until `shouldStop()` evaluates to true.
+
+**ReflectingState** — the synthesis phase. The agent interprets the accumulated student responses, assesses calibration, and constructs the structured reflection note. Only synthesis operations available — no new questions, no new dialogue. Transitions to `IdleState` on successful note capture, or to `WaitingForHumanState` if synthesis reveals a safeguarding indicator not caught during elicitation.
+
+**WaitingForHumanState** — `HITLDecorator` has routed an output to a human reviewer. The agent is suspended. No new outputs, no new questions. The current `ExecutionCheckpoint` Memento is held. Transitions to `ExecutingState` on approval, to `ErrorRecoveryState` on rejection with guidance.
+
+The circuit breaker is set at ten dialogue turns. If `shouldStop()` has not evaluated to true after ten exchanges, the agent transitions to `ReflectingState` regardless — synthesising from what has been captured rather than continuing indefinitely. This is the bounded engagement guarantee: a student is never subjected to an open-ended session.
+
+#### Command — every interaction as a governed asset
+
+Every significant event in the reflection session is encapsulated as a Command record and appended to EDP1:
+
+- Each targeted question issued is a `ToolInvocationCommand`
+- Each student response received is a `DataAccessCommand` against the session's interaction context
+- The structured reflection note write is a `DataAccessCommand` carrying full provenance: agentId, sessionId, studentId, session trace reference, guardrail assessment, decorator stack, schema version, `mementoRef`, timestamp
+
+The `mementoRef` on each Command record is the mechanism that makes the reflection session fully auditable. For any point in the session, you can reconstruct the exact system state when that interaction occurred — what the agent had access to, what constraints were active, what the student had already disclosed. If a safeguarding concern surfaces weeks later, the full interaction trace is reconstructable from EDP1 without relying on any agent's memory.
+
+#### Observer — the LearnerWellnessProfile as Subject
+
+When the reflection note is written to the `LearnerWellnessProfile`, the profile's Observer notification fires. Three registered Observers react:
+
+**`PatternWatcherAgent`** (pull model) — receives notification that a new reflection note is available, then queries the profile for records relevant to its current longitudinal analysis window. It examines the student's self-assessment trajectory across sessions: is calibration improving? Are emotional indicators stable? Is the student consistently reporting more difficulty than their performance data suggests? Its analysis is stochastic — the same sequence of notes may yield different trajectory assessments on different runs — and its outputs are themselves Command records in EDP1, closing the self-observation loop.
+
+**`CoachDashboard`** (push model) — receives the full reflection note immediately and updates the coach's view. The dashboard uses event timestamps, not notification arrival order, for causal sequencing — concurrent writes from the wearable ingestion agent and the reflective agent may arrive in non-deterministic order.
+
+**`AlertSystem`** (push model) — checks the note for coach-attention flags. If the note contains a flag that passed HITL review, the alert notifies the coach directly. This Observer relationship means safeguarding escalation is architectural — it cannot be bypassed even if the reflective agent's synthesis missed something the HITL reviewer caught.
+
+#### Memento — session resilience and context handoff
+
+The `AgentRunner` captures `ExecutionCheckpoints` at two points:
+
+**Before `PlanningState` begins** — the full session context is snapshotted. If the session is interrupted before the student has responded to any questions, the next session start can restore from this checkpoint without re-loading all context.
+
+**Before each `DataAccessCommand` that writes to the `LearnerWellnessProfile`** — the state at the moment of the write is snapshotted. If the write fails or is contested by a concurrent write, the `MementoStore` provides a restoration point.
+
+The Memento's most student-facing role is session continuity. A student who begins a reflection session, discloses something personal, and then loses connection should not have to start from scratch or re-disclose. The `SessionContext` passed by the `ConversationOrchestrator` carries the current `mementoRef` so the agent can restore and continue from where the student left off.
+
+The validity window applies here as everywhere: if the `LearnerWellnessProfile` schema was updated between snapshot and restoration, the `schemaVersions` metadata signals incompatibility before restoration occurs rather than silently corrupting the student's data.
+
+#### Singleton — uniform safety constraints
+
+**`SafetyConstraintStore`** — the `GuardrailDecorator` reads distress indicator definitions and threshold scores from this store at evaluation time, not from a local copy. When definitions are updated, the update propagates to every `GuardrailDecorator` instance in the fleet simultaneously. A reflective agent serving one student cannot have different safety definitions than one serving another.
+
+**`EvalThresholdRegistry`** — the `SafetyJudge` reads its confidence threshold from this singleton. Below threshold, the verdict escalates to the `SafetyMonitor` Observer. Uniform across all reflective agent instances.
+
+#### Abstract Factory — evaluation as a first-class concern
+
+The `ReflectiveAgentEvalFactory` produces three judges that compose into the `ReflectiveAgentEvalSuite`:
+
+**`ReflectionQualityJudge`** — evaluates whether the agent elicited meaningful reflection or merely surface responses. A student who answered every question with a single sentence and the agent marked the session complete has produced a low-quality reflection regardless of whether the note is syntactically correct.
+
+**`CalibrationJudge`** — evaluates whether the agent's calibration assessment is reasonable. Compares the agent's interpretation of the gap between the student's self-reported experience and objective session data. Stochastic — the same session data may support different calibration interpretations.
+
+**`SafetyJudge`** — evaluates the `GuardrailDecorator`'s performance rather than the agent's output directly. Did it flag content that warranted flagging? Did it pass content that should have been flagged? Its verdicts are EDP2 records attached to the guardrail's Command log entries.
+
+A session that passes `CalibrationJudge` but fails `SafetyJudge` is a failed session regardless of reflection quality. The suite verdict aggregates all three.
+
+#### Facade — accountability at the data boundary
+
+Every read from and write to the `LearnerWellnessProfile` goes through the `DataProductAccessAgent` Facade. For the reflective agent:
+
+- The session trace retrieval in `buildContext()` is mediated by the Facade — consent validated, retrieval logged, data product lineage recorded.
+- The structured reflection note write in `finaliseAnswer()` is mediated by the Facade — consent validated again (consent may have changed mid-session), write logged as a `DataAccessCommand`, lineage updated.
+- The `LoggingDecorator` wraps the Facade — every Facade interaction is captured in EDP1 without any modification to the Facade itself.
+
+#### Mediator — session coordination
+
+The `ConversationOrchestrator` routes sessions to the `ExperienceCaptureAgent` and passes a `SessionContext` object containing active consent state, current `mementoRef`, session trace reference, and active safety constraints. The reflective agent knows only the Mediator — it has no direct awareness of other agents.
+
+When the `HITLDecorator` activates, the Mediator is notified. It holds the session — no other agent is called, no other output is produced — until the human reviewer returns a verdict. The Mediator propagates the review outcome to the agent's next `SessionContext`.
+
+### The central design tension
+
+The `shouldStop()` hook concentrates the catalogue's most difficult design problem into a single method. Completeness in a reflective conversation is not a binary state — it is a judgment about depth, honesty, and the student's current capacity. That judgment is probabilistic, contextual, and impossible to verify at runtime.
+
+The pattern catalogue does not solve this problem. What it does is bound it. The circuit breaker in the State machine ensures the agent cannot run indefinitely. The Memento ensures that if the session is interrupted, the student's disclosures are not lost. The Command Log ensures that whatever decision `shouldStop()` makes is auditable. The `ReflectionQualityJudge` evaluates whether the stop condition was exercised appropriately. The HITL route ensures that the most consequential outputs — a student in distress — are never resolved by the stochastic judgment of an LLM alone.
+
+The reflective agent is not safe because the LLM is well-calibrated. It is safe because the architecture does not rely on the LLM being well-calibrated.
+
+---
+
+## The Agent Collective {#sec-case-study-collective}
+
+*The full NLI agent collective — data ingestion agents, the interaction layer, analysis agents, and the governance layer — will be documented in a subsequent version of this chapter.*
